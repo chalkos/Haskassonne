@@ -1,0 +1,19 @@
+<board players="2">
+	<terrain>
+		<tile type="E" x="0" y="0" orientation="E">
+			<follower player="1" type="K"/>
+		</tile>
+		<tile type="N" x="1" y="0" orientation="W"/>
+		<tile type="B" x="0" y="­1" orientation="N">
+			<follower player="1" type="M"/>
+		</tile>
+		<tile type="E" x="­1" y="0" orientation="W">
+			<follower player="2" type="K"/>
+		</tile>
+	</terrain>
+	<scores>
+		<score player="1" score="0"/>
+		<score player="2" score="0"/>
+	</scores>
+	<next player="1" tile="E"/>
+</board>
