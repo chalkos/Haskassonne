@@ -1,40 +1,42 @@
 import Text.XML.Light
 
 -- definição de tipos
-type TileName = String -- **
+type TileType = Char
+type Player = Int
 
 data Score = Score {
-	player :: Int,
-	score :: Int
+    s_player :: Player,
+    s_score :: Int
 } deriving (Show)
 
 data Next = Next {
-	player :: Int,
-	tile :: TileName
+    n_player :: Player,
+    n_tile :: TileType
 } deriving (Show)
 
 data Meeple = Meeple {
-	player :: Int,
-	type :: String -- *4
+    m_player :: Player,
+    m_type :: Char
 } deriving (Show)
 
 data Tile = Tile {
-	type :: TileName,
-	x :: Int,
-	y :: Int,
-	orientation :: String, -- ***
-	meeple :: Maybe Meeple
+    t_type :: TileType,
+    t_x :: Int,
+    t_y :: Int,
+    t_orientation :: Char,
+    t_meeple :: Maybe Meeple
 } deriving (Show)
 
 data Board = Board {
-	players :: Int,
-	terrain :: [Tile],
-	scores :: [Score],
-	next :: Next
+    b_players :: Int,
+    b_terrain :: [Tile],
+    b_scores :: [Score],
+    b_next :: Next
 } deriving (Show)
 
-main = do entrada <­ getContents
-	let Just elem = parseXMLDoc entrada
-	putStrLn $ processa elem
+main = do entrada <- getContents
+          let Just elem = parseXMLDoc entrada
+          putStrLn $ (processa elem)
 
-processa :: Element ­> String
+processa :: Element ­-> String
+
