@@ -1,3 +1,4 @@
+import Data.Char
 import Text.XML.Light
 import Text.XML.Light.Types
 
@@ -73,7 +74,7 @@ processaNextAttr_NPlayer ((Attr {attrKey=(QName {qName="player"}), attrVal=n}):_
 processaNextAttr_NPlayer (_:t) = processaNextAttr_NPlayer t
 
 processaNextAttr_NTile :: [Attr] -> Char
-processaNextAttr_NTile ((Attr {attrKey=(QName {qName="tile"}), attrVal=(c:_)}):_) = c
+processaNextAttr_NTile ((Attr {attrKey=(QName {qName="tile"}), attrVal=(c:_)}):_) = toUpper c
 processaNextAttr_NTile (_:t) = processaNextAttr_NTile t
 
 
