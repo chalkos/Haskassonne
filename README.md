@@ -26,6 +26,9 @@ A configuração do sublime usando 4 espaços fica assim (preferrences-settings-
     cabal update
     cabal install <package>
 
+    cabal install xml
+    cabal install pretty-show
+
 #### Docs do XML light
 
 http://hackage.haskell.org/package/xml-1.3.4/docs/Text-XML-Light-Types.html
