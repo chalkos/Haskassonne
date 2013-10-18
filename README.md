@@ -28,6 +28,7 @@ A configuração do sublime usando 4 espaços fica assim (preferrences-settings-
 
     cabal install xml
     cabal install pretty-show
+    cabal install MissingH
 
 #### Docs do XML light
 
