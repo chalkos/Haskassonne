@@ -106,15 +106,15 @@ drawMap mapa = artTiles2String (map (\y-> (map (\x->tile2Art x) y)) mapa)
 -- constroi uma string com a matriz de Art
 artTiles2String :: [[Art]] -> String
 artTiles2String [] = ""
-artTiles2String (h1@(h2@([]):t2):t1) = artTiles2String t1
-artTiles2String (h1@(h2@(h3:t3):t2):t1) = (concat (getAllHeads h1)) ++ "\n" ++ (artTiles2String ((getAllTails h1):t1))
-                                        where
-                                            getAllHeads :: [[a]] -> [a]
-                                            getAllHeads [] = [] 
-                                            getAllHeads ((a:b):c) = a:(getAllHeads c)
-                                            getAllTails :: [[a]] -> [[a]]
-                                            getAllTails [] = []
-                                            getAllTails ((a:b):c) = [b] ++ (getAllTails c)
+artTiles2String (h1@(([]):t2):t1) = artTiles2String t1
+artTiles2String (h1:t1) = (concat (getAllHeads h1)) ++ "\n" ++ (artTiles2String ((getAllTails h1):t1))
+                        where
+                            getAllHeads :: [[a]] -> [a]
+                            getAllHeads [] = [] 
+                            getAllHeads ((a:b):c) = a:(getAllHeads c)
+                            getAllTails :: [[a]] -> [[a]]
+                            getAllTails [] = []
+                            getAllTails ((a:b):c) = [b] ++ (getAllTails c)
 
 -- dado um tile, retorna o artASCII correspondente
 tile2Art :: Maybe Tile -> Art
