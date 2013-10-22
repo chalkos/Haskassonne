@@ -35,7 +35,6 @@ data Tile = Tile {
 } deriving (Show)
 
 data Board = Board {
-    b_players :: Int,
     b_terrain :: [Tile],
     b_scores :: [Score],
     b_next :: Next
@@ -182,9 +181,8 @@ getAttrValueChar key ((Attr {attrKey=(QName {qName=attrK}), attrVal=attrV}):t) =
 
 -- board
 processaBoard :: Element -> Board
-processaBoard (Element {elName=(QName {qName="board"}), elAttribs=((Attr {attrKey=(QName {qName="players"}), attrVal=n}):[]), elContent=children} ) = 
-    Board { b_players = read n
-          , b_terrain = processaTerrain (getElemsFromContent children)
+processaBoard (Element {elName=(QName {qName="board"}), elContent=children} ) = 
+    Board { b_terrain = processaTerrain (getElemsFromContent children)
           , b_scores  = processaScores (getElemsFromContent children)
           , b_next    = processaNext (getElemsFromContent children)
           }
