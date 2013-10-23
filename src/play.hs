@@ -1,4 +1,4 @@
-import Text.XML.Light
+import Comum
 
 main = do entrada <- getContents
     let Just elem = parseXMLDoc entrada

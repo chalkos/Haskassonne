@@ -1,9 +1,14 @@
 #!/bin/bash
 
 # compilar
-ghc src/draw.hs
+cd src
+ghc draw.hs
+
+cd ..
 rm -f src/draw.hi
 rm -f src/draw.o
+rm -f src/Comum.hi
+rm -f src/Comum.o
 
 # apagar velho, mover novo
 rm -f bin/draw
