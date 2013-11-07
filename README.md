@@ -8,6 +8,14 @@ Informação geral
 
 Informação geral sobre o jogo Carcassonne, sobre o qual o Haskassonne se baseia, pode ser consultada em http://en.wikipedia.org/wiki/Carcassonne_(board_game)
 
+Makefile
+--------
+
+* clean - apaga ficheiros temporários
+* draw - cria o executável do draw
+* next - cria o executável do next
+* play - cria o executável do play
+
 Random Info
 ----
 

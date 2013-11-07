@@ -20,17 +20,20 @@ clean: dir_report dir_doc dir_bin
 bin/draw: dir_bin
 	@echo "  (compilando Draw)"
 	ghc $(FLAGS) $@ src/Draw.hs
+	$(RM) src/*.hi
 
 draw: bin/draw
 
 bin/next: dir_bin
 	@echo "  (compilando Next)"
 	ghc $(FLAGS) $@ src/Next.hs
+	$(RM) src/*.hi
 
 next: bin/next
 
 bin/play: dir_bin
 	@echo "  (compilando Play)"
 	ghc $(FLAGS) $@ src/Play.hs
+	$(RM) src/*.hi
 
 play: bin/play
