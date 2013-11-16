@@ -4,6 +4,9 @@ import Data.List.Utils
 
 import Leitor
 
+-- | 
+type Art = [String]
+
 --------------------
 -- fazer o artASCII
 --------------------

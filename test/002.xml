@@ -1,0 +1,10 @@
+<board players="2">
+	<terrain>
+		<tile type="B" x="0" y="­1" orientation="N"/>
+	</terrain>
+	<scores>
+		<score player="1" score="0"/>
+		<score player="2" score="0"/>
+	</scores>
+	<next player="1" tile="E"/>
+</board>
