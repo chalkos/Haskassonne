@@ -5,6 +5,7 @@ import Data.List.Utils
 
 import Leitor
 import ArtASCII
+import Tabuleiro
 
 main = do entrada <- getContents
           let Just elem = parseXMLDoc entrada

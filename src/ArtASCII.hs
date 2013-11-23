@@ -3,8 +3,9 @@ module ArtASCII where
 import Data.List.Utils
 
 import Leitor
+import Tabuleiro
 
--- | 
+-- | Representa um tile em ArtASCII
 type Art = [String]
 
 --------------------
@@ -17,24 +18,6 @@ artE = ["*****", ".*K*.", "..*..", ".....", "..F.."] :: Art
 artN = ["*****", "*K**.", "***..", "**.F.", "*...."] :: Art
 artVoid = ["     ","     ","     ","     ","     "] :: Art
 --artTest = ["ABCDE", "FGHIJ", "KLMNO", "PQRST", "UVWXY"] :: Art
-
--- obtém os valores máximos e mínimos para as coordenadas X e Y
-getLimits :: Board -> Limits
-getLimits (Board {b_terrain=tiles}) = Limits { l_Xmin = xmin
-                                             , l_Xmax = xmax
-                                             , l_Ymin = ymin
-                                             , l_Ymax = ymax
-                                             }
-                                         where (xmin, xmax) = getTileLimit (t_x) tiles []
-                                               (ymin, ymax) = getTileLimit (t_y) tiles []
-
--- obtém o valor máximo para uma das coordenadas X ou Y, especificadas como t_x ou t_y
--- t_x :: (Tile->Int)
--- t_y :: (Tile->Int)
-getTileLimit :: (Tile->Int) -> [Tile] -> [Int] -> (Int,Int)
-getTileLimit member (h:t) [] = getTileLimit member t [(member h)]
-getTileLimit member (h:t) acum = getTileLimit member t ((member h):acum)
-getTileLimit member [] acum = (minimum acum, maximum acum)
 
 -- organiza uma matriz de Maybe Tile
 buildMap :: [Tile] -> Limits -> Map
@@ -99,9 +82,3 @@ rotateArt art rot = [ [ (getMatrixValue art (coordInv (x,y) rot)) | x <- [0..4] 
 -- obtém o valor numa posição da matriz (zero-based)
 getMatrixValue :: [[a]] -> Location -> a
 getMatrixValue l (x,y) = ((l !! y) !! x)
-
--- obtém o tile que está numa posição, ou Nothing caso não exista nenhum nessa posição
-getTileAtLocation :: [Tile] -> Location -> Maybe Tile
-getTileAtLocation [] _ = Nothing
-getTileAtLocation (tile@(Tile {t_x=tx, t_y=ty}):t) loc@(x,y) = if tx==x && ty==y then Just tile
-                                                               else getTileAtLocation t loc

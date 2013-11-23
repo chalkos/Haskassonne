@@ -1,6 +1,8 @@
-.PHONY: clean draw next play dir_bin dir_doc dir_report
+.PHONY: clean draw next play dir_bin dir_doc dir_report all
 
 FLAGS ?= -O -isrc/ -o
+
+all: draw next play
 
 dir_bin:
 	@if [ ! -d bin ]; then mkdir bin; fi;
