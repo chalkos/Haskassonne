@@ -2,6 +2,8 @@
 module Tabuleiro where
 
 import Leitor
+import Data.List
+import Data.Maybe
 
 -- | Representa a lateral de uma peça
 data Side = Field | City | Both
@@ -34,29 +36,29 @@ getLimits (Board {b_terrain=tiles}) = Limits { l_Xmin = xmin
 -- t_y :: (Tile->Int)
 getTileLimit :: (Tile->Int) -> [Tile] -> (Int,Int)
 getTileLimit member l = (minimum res, maximum res)
-    where res = map (member) l
+  where res = map (member) l
 --getTileLimit member (h:t) [] = getTileLimit member t [(member h)]
 --getTileLimit member (h:t) acum = getTileLimit member t ((member h):acum)
 --getTileLimit member [] acum = (minimum acum, maximum acum)
 
 -- | Recebe um 'Tile' e uma orientação e retorna as suas laterais (N,S,W,E)
-borderTypeTile :: Tile -> Sides
-borderTypeTile (Tile {t_type=tipo, t_orientation=orientacao}) = borderType tipo orientacao
+getSidesFromTile :: Tile -> Sides
+getSidesFromTile (Tile {t_type=tipo, t_orientation=orientacao}) = getSidesFromTypeAndOrientation tipo orientacao
 
 -- | Recebe um tipo de peça e uma orientação e retorna as suas laterais (N,S,W,E)
-borderType :: TileType -> Char -> Sides
-borderType 'B' _ = (Field, Field, Field, Field)
-borderType 'C' _ = (City, City, City, City)
-borderType 'E' o = case o of
-                    'N' -> (City, Field, Field, Field)
-                    'E' -> (Field, City, Field, Field)
-                    'S' -> (Field, Field, City, Field)
-                    'W' -> (Field, Field, Field, City)
-borderType 'N' o = case o of
-                    'N' -> (City, Field, Field, City)
-                    'E' -> (City, City, Field, Field)
-                    'S' -> (Field, City, City, Field)
-                    'W' -> (Field, Field, City, City)
+getSidesFromTypeAndOrientation :: TileType -> Char -> Sides
+getSidesFromTypeAndOrientation 'B' _ = (Field, Field, Field, Field)
+getSidesFromTypeAndOrientation 'C' _ = (City, City, City, City)
+getSidesFromTypeAndOrientation 'E' o = case o of
+                                            'N' -> (City, Field, Field, Field)
+                                            'E' -> (Field, City, Field, Field)
+                                            'S' -> (Field, Field, City, Field)
+                                            'W' -> (Field, Field, Field, City)
+getSidesFromTypeAndOrientation 'N' o = case o of
+                                            'N' -> (City, Field, Field, City)
+                                            'E' -> (City, City, Field, Field)
+                                            'S' -> (Field, City, City, Field)
+                                            'W' -> (Field, Field, City, City)
 
 -- | Informa que tipo de tile pode estar na posição (x,y)
 possibleBordersOfTileAt :: Int -> Int -> [Tile] -> Sides
@@ -69,7 +71,7 @@ possibleBordersOfTileAt x y tiles = (southBorder (borderTypeMaybeTile up), westB
 -- | Dado um 'Tile' obtém as suas bordas
 borderTypeMaybeTile :: Maybe Tile -> Sides
 borderTypeMaybeTile Nothing = (Both,Both,Both,Both)
-borderTypeMaybeTile (Just x) = borderTypeTile x
+borderTypeMaybeTile (Just x) = getSidesFromTile x
 
 -- | Dado os lados, retornar o lado de cima
 northBorder :: Sides -> Side
@@ -108,33 +110,140 @@ getTilesFromSides x y sides = foldr (++) [] (map (getTilesFromSide x y) sides)
 -- | Verifica qual o tile que é possível colocar numa posição sabendo as laterais das peças adjacentes
 getTilesFromSide :: Int -> Int -> Sides -> [Maybe Tile]
 getTilesFromSide x y sides =
-    case sides of
-        (Field, Field, Field, Field) -> [Just (Tile { t_type = 'B', t_x = x, t_y = y, t_orientation = o, t_meeple = Nothing}) | o <- ['N','E','S','W']]
-        (City, City, City, City) -> [Just (Tile { t_type = 'C', t_x = x, t_y = y, t_orientation = o, t_meeple = Nothing}) | o <- ['N','E','S','W']]
-        (City, Field, Field, Field) -> [Just (Tile { t_type = 'E', t_x = x, t_y = y, t_orientation = 'N', t_meeple = Nothing})]
-        (Field, City, Field, Field) -> [Just (Tile { t_type = 'E', t_x = x, t_y = y, t_orientation = 'E', t_meeple = Nothing})]
-        (Field, Field, City, Field) -> [Just (Tile { t_type = 'E', t_x = x, t_y = y, t_orientation = 'S', t_meeple = Nothing})]
-        (Field, Field, Field, City) -> [Just (Tile { t_type = 'E', t_x = x, t_y = y, t_orientation = 'W', t_meeple = Nothing})]
-        (City, Field, Field, City) -> [Just (Tile { t_type = 'N', t_x = x, t_y = y, t_orientation = 'N', t_meeple = Nothing})]
-        (City, City, Field, Field) -> [Just (Tile { t_type = 'N', t_x = x, t_y = y, t_orientation = 'E', t_meeple = Nothing})]
-        (Field, City, City, Field) -> [Just (Tile { t_type = 'N', t_x = x, t_y = y, t_orientation = 'S', t_meeple = Nothing})]
-        (Field, Field, City, City) -> [Just (Tile { t_type = 'N', t_x = x, t_y = y, t_orientation = 'W', t_meeple = Nothing})]
-        _ -> [Nothing]
+  case sides of
+    (Field, Field, Field, Field) -> [Just (Tile { t_type = 'B', t_x = x, t_y = y, t_orientation = o, t_meeple = Nothing}) | o <- ['N','E','S','W']]
+    (City, City, City, City) -> [Just (Tile { t_type = 'C', t_x = x, t_y = y, t_orientation = o, t_meeple = Nothing}) | o <- ['N','E','S','W']]
+    (City, Field, Field, Field) -> [Just (Tile { t_type = 'E', t_x = x, t_y = y, t_orientation = 'N', t_meeple = Nothing})]
+    (Field, City, Field, Field) -> [Just (Tile { t_type = 'E', t_x = x, t_y = y, t_orientation = 'E', t_meeple = Nothing})]
+    (Field, Field, City, Field) -> [Just (Tile { t_type = 'E', t_x = x, t_y = y, t_orientation = 'S', t_meeple = Nothing})]
+    (Field, Field, Field, City) -> [Just (Tile { t_type = 'E', t_x = x, t_y = y, t_orientation = 'W', t_meeple = Nothing})]
+    (City, Field, Field, City) -> [Just (Tile { t_type = 'N', t_x = x, t_y = y, t_orientation = 'N', t_meeple = Nothing})]
+    (City, City, Field, Field) -> [Just (Tile { t_type = 'N', t_x = x, t_y = y, t_orientation = 'E', t_meeple = Nothing})]
+    (Field, City, City, Field) -> [Just (Tile { t_type = 'N', t_x = x, t_y = y, t_orientation = 'S', t_meeple = Nothing})]
+    (Field, Field, City, City) -> [Just (Tile { t_type = 'N', t_x = x, t_y = y, t_orientation = 'W', t_meeple = Nothing})]
+    _ -> [Nothing]
 
 
 -- | Dado uma localização e a lista de 'Tile' em jogo, informa que peças podem ser lá colocadas
 possibleTilesAt :: [Tile] -> Location -> [Tile]
 possibleTilesAt tiles (x,y) =
-    case getTileAtLocation tiles (x,y) of
-        Nothing -> case (possibleBordersOfTileAt x y tiles) of
-                     (Both, Both, Both, Both) -> [] -- não há nenhum tile adjacente
-                     sides -> getTilesFromMaybeTiles (getTilesFromSides x y (removeDuplicates (removeAmbiguousSides sides)))
-        (Just _) -> []
+  case getTileAtLocation tiles (x,y) of
+    Nothing -> case (possibleBordersOfTileAt x y tiles) of
+                 (Both, Both, Both, Both) -> [] -- não há nenhum tile adjacente
+                 sides -> getTilesFromMaybeTiles (getTilesFromSides x y (removeDuplicates (removeAmbiguousSides sides)))
+    (Just _) -> []
 
 -- | A partir do 'Board' descobre todas as peças que podem ser colocadas, onde e em que posição (não verifica meeples)
 possibleNextTiles :: Board -> [Tile]
 possibleNextTiles b = concat (map (possibleTilesAt tiles) positions)
-    where limits = (getLimits b)
-          tiles = b_terrain b
-          (xmin,xmax,ymin,ymax) = ((l_Xmin limits)-1, (l_Xmax limits)+1, (l_Ymin limits)-1, (l_Ymax limits)+1)
-          positions = concat [[(x,y) | x <- [xmin..xmax]] | y <- [ymax, (ymax-1)..ymin] ]
+  where limits = (getLimits b)
+        tiles = b_terrain b
+        (xmin,xmax,ymin,ymax) = ((l_Xmin limits)-1, (l_Xmax limits)+1, (l_Ymin limits)-1, (l_Ymax limits)+1)
+        positions = concat [[(x,y) | x <- [xmin..xmax]] | y <- [ymax, (ymax-1)..ymin] ]
+
+-- | Obter o tipo do próximo tile
+getNextTileType :: Board -> TileType
+getNextTileType (Board {b_next=proximaJogada}) = n_tile proximaJogada
+
+-- | Obter o próximo jogador
+getNextPlayer :: Board -> Player
+getNextPlayer (Board {b_next=proximaJogada, b_scores=players}) = 
+  case find ((proxJogador==).s_player) players of
+    Just match -> match
+  where proxJogador = n_player proximaJogada
+
+-- | Verifica se o próximo jogador tem meeples por jogar
+nextPlayerHasMeeples :: Board -> Bool
+nextPlayerHasMeeples board = (meeplesPlacedByNextPlayer board) <= 7
+
+-- | Verifica quantos meeples o próximo jogador tem em jogo
+meeplesPlacedByNextPlayer :: Board -> Int
+meeplesPlacedByNextPlayer board = length (filter ((nPlayer==).m_player) (map (fromJust) (filter (isJust) (map (t_meeple) (b_terrain board)))))
+                                  where nPlayer = n_player (b_next board)
+
+-- | Obter os tile de acordo com a proxima jogada
+-- verificar a peça seguinte e filtrar as possiveis
+-- verificar se o jogador pode usar meeples
+validNextTiles :: Board -> [Tile]
+validNextTiles board = validTiles ++ tilesComMeeples
+                       where validType = getNextTileType board
+                             validTiles = filter ((validType==).t_type) tiles
+                             tilesComMeeples = if nextPlayerHasMeeples board then getTilesWithMeeples board validTiles else []
+                             tiles = possibleNextTiles board
+
+-- | A partir do tabuleiro e da lista de 'Tile's que podem ser colocados, devolver uma lista de 'Tile's que podem ser colocados com e sem 'Meeples's
+getTilesWithMeeples :: Board -> [Tile] -> [Tile]
+getTilesWithMeeples board tiles = knights ++ farmers ++ monks
+                            where knights = getTilesFromMaybeTiles (map (getTileWithKnight board) tiles)
+                                  farmers = getTilesFromMaybeTiles (map (getTileWithFarmer board) tiles)
+                                  monks = getTilesFromMaybeTiles (map (getTileWithMonk) tiles)
+
+-- verificar todos os tile de cidade à volta a procura de um outro meeple, se nao existir, pode colocar
+getTileWithKnight :: Board -> Tile -> Maybe Tile
+getTileWithKnight board tile =  if (tipo=='C'||tipo=='E'||tipo=='N') && (canThisTileHaveMeeple tile board 'K')
+                                then Just (Tile { t_type = tipo
+                                                , t_x = (t_x tile)
+                                                , t_y = (t_y tile)
+                                                , t_orientation = (t_type tile)
+                                                , t_meeple = Just (Meeple {m_player=0,m_type='K'})
+                                                })
+                                else Nothing
+                                where tipo = t_type tile
+
+-- verificar todos os tile de field à volta a procura de um outro meeple, se nao existir, pode colocar
+getTileWithFarmer :: Board -> Tile -> Maybe Tile
+getTileWithFarmer board tile =  if (tipo=='B'||tipo=='E'||tipo=='N') && (canThisTileHaveMeeple tile board 'F')
+                                then Just (Tile { t_type = tipo
+                                                , t_x = (t_x tile)
+                                                , t_y = (t_y tile)
+                                                , t_orientation = (t_type tile)
+                                                , t_meeple = Just (Meeple {m_player=0,m_type='F'})
+                                                })
+                                else Nothing
+                                where tipo = t_type tile
+
+-- verificar todos os tile de field à volta a procura de um outro meeple, se nao existir, pode colocar
+getTileWithMonk :: Tile -> Maybe Tile
+getTileWithMonk tile =  if (t_type tile) == 'B'
+                        then Just (Tile { t_type = 'B'
+                                        , t_x = (t_x tile)
+                                        , t_y = (t_y tile)
+                                        , t_orientation = (t_type tile)
+                                        , t_meeple = Just (Meeple {m_player=0,m_type='M'})
+                                        })
+                        else Nothing
+
+-- | Verifica se um tile pode ter um meeple do tipo definido
+canThisTileHaveMeeple :: Tile -> Board -> Char -> Bool
+canThisTileHaveMeeple newTile board meepleType = searchMeeple meepleType tiles [newTile] []
+                                       where tiles = b_terrain board
+
+-- todos, porVer, vistos
+-- verificar se o proprio tem meeple, se tiver return false
+-- verificar quais dos tiles adicionar ao por ver com base nas bordas e no tipo de meeple
+--
+searchMeeple :: Char -> [Tile] -> [Tile] -> [Tile] -> Bool
+searchMeeple _ _ [] _ = True
+searchMeeple meeple todos (this:porVer) vistos = 
+    if isJust (t_meeple this)
+    then False -- encontrou um meeple, não se pode colocar nenhum meeple no tile original
+    else searchMeeple meeple todos (porVer ++ filter (\x -> x `elem` vistos) (tilesToAddBasedOnMeepleType meeple this todos)) (this:vistos)
+
+tilesToAddBasedOnMeepleType :: Char -> Tile -> [Tile] -> [Tile]
+tilesToAddBasedOnMeepleType 'K' tile tiles = getTilesFromMaybeTiles (map (getTileAtLocation tiles) (getFollowingTilesPositions tile City (getSidesFromTile tile)))
+tilesToAddBasedOnMeepleType 'F' tile tiles = getTilesFromMaybeTiles (map (getTileAtLocation tiles) (getFollowingTilesPositions tile City (getSidesFromTile tile)))
+
+-- | Obtém uma lista das posições dos 'Tile's por onde se deve continuar a procurar 'Meeple's
+getFollowingTilesPositions :: Tile -> Side -> Sides -> [Location]
+getFollowingTilesPositions tile City sides = case sides of
+        (City,b,c,d) -> (t_x tile, t_y tile+1):(getFollowingTilesPositions tile City (Both,b,c,d))
+        (a,City,c,d) -> (t_x tile+1, t_y tile):(getFollowingTilesPositions tile City (a,Both,c,d))
+        (a,b,City,d) -> (t_x tile, t_y tile-1):(getFollowingTilesPositions tile City (a,b,Both,d))
+        (a,b,c,City) -> (t_x tile-1, t_y tile):(getFollowingTilesPositions tile City (a,b,c,Both))
+        _ -> []
+getFollowingTilesPositions tile Field sides = case sides of
+        (Field,b,c,d) -> (t_x tile, t_y tile+1):(getFollowingTilesPositions tile Field (Both,b,c,d))
+        (a,Field,c,d) -> (t_x tile+1, t_y tile):(getFollowingTilesPositions tile Field (a,Both,c,d))
+        (a,b,Field,d) -> (t_x tile, t_y tile-1):(getFollowingTilesPositions tile Field (a,b,Both,d))
+        (a,b,c,Field) -> (t_x tile-1, t_y tile):(getFollowingTilesPositions tile Field (a,b,c,Both))
+        _ -> []

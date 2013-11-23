@@ -22,7 +22,7 @@ data Next = Next {
 data Meeple = Meeple {
     m_player :: Int,
     m_type :: Char
-} deriving (Show)
+} deriving (Eq, Show)
 
 -- | Uma peça de Terreno.
 data Tile = Tile {
@@ -36,7 +36,7 @@ data Tile = Tile {
     t_orientation :: Char,
     -- | Um Meeple que exista na peça.
     t_meeple :: Maybe Meeple
-} deriving (Show)
+} deriving (Eq, Show)
 
 -- | O terreno.
 data Board = Board {

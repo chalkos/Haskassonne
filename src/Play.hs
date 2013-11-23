@@ -15,7 +15,8 @@ main = do entrada <- getContents
 processa :: Element -> String
 --processa e = ppShow (possibleBordersOfTileAt 1 (-1) tiles)
 --processa e = ppShow (possibleTilesAt (-2,0) tiles)
-processa e = ppShow (possibleNextTiles board)
+--processa e = ppShow (possibleNextTiles board)
+processa e = ppShow (validNextTiles board)
              where 
                 --(tiles, players, proxima) = (b_terrain board, b_scores board, b_next board)
                 board = (processaBoard e)
