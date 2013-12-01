@@ -6,6 +6,9 @@ import Data.List
 import Data.Maybe
 import Data.Char
 
+-- | Representa uma zona do mapa: uma cidade, um campo ou um claustro, começando num determinado 'Tile'.
+-- | O 'Tile' inicial também deve estar na lista.
+data Zone = City Tile [Tile] | Field Tile [Tile] | Cloister Tile [Tile]
 
 -- | Números de peças que podem ser jogadas
 nPecasB = 6 :: Int
@@ -198,6 +201,24 @@ randomValidTileToPlay seed board = (todos !! (randomValue seed ((length todos)-1
                           tilesComMeeples = if ((randomValue seed 1) == 1) && nextPlayerHasMeeples board then getTilesWithMeeples board validTiles else []
                           tiles = possibleNextTiles board
                           todos = validTiles ++ tilesComMeeples
+
+-- | Gera um elemento 'Next' para a próxima jogada
+generateNext :: Int -> Board -> Next
+generateNext seed board = (Next {n_tile=(t_type (todos !! (randomValue seed ((length todos)-1)))), n_player=generateNextPlayer b}
+            where validType = getNextTileType board
+                  validTiles = filter ((validType==).t_type) tiles
+                  tilesComMeeples = if ((randomValue seed 1) == 1) && nextPlayerHasMeeples board then getTilesWithMeeples board validTiles else []
+                  tiles = possibleNextTiles board
+                  todos = validTiles ++ tilesComMeeples
+
+-- | Determina o número do próximo jogador
+generateNextPlayer :: Board -> Int
+generateNextPlayer b = getNext (head players) players
+            where players = map s_player (b_scores b)
+                  actual = n_player $ b_next b
+                  getNext l (x:y:n) = if x==actual then y else getNext l (y:n)
+                  getNext l (x:[]) = if x==actual then l else error "não conseguiu determinar o proximo jogador"
+
                                 
 -- seed deve ser entre 0 e 1000
 randomValue :: Int -> Int -> Int
@@ -295,16 +316,6 @@ isCityComplete loc todos (this:porVer) vistos =
     then False
     else isCityComplete loc todos (porVer ++ filter (\x -> x `elem` vistos) (tilesToAddBasedOnMeepleType 'K' this todos)) (this:vistos)
 
--- | conta o número de 'Tile's de uma cidade
-getCitySize :: Location -> [Tiles] -> [Tile] -> [Tile] -> Int
-getCitySize _ _ [] _ = 0
-getCitySize loc todos (this:porVer) vistos = 1 + (getCitySize loc todos (porVer ++ filter (\x -> x `elem` vistos) (tilesToAddBasedOnMeepleType 'K' this todos)) (this:vistos))
-
--- | conta o número de 'Tile's de um campo
-getFieldSize :: Location -> [Tiles] -> [Tile] -> [Tile] -> Int
-getFieldSize _ _ [] _ = 0
-getFieldSize loc todos (this:porVer) vistos = 1 + (getFieldSize loc todos (porVer ++ filter (\x -> x `elem` vistos) (tilesToAddBasedOnMeepleType 'F' this todos)) (this:vistos))
-
 --------------------------------------------
 --------------------------------------------
 
@@ -355,3 +366,58 @@ substituteNext b n = Board { b_terrain = b_terrain b
 getAllTilesWithMeeples :: Board -> [Tile]
 getAllTilesWithMeeples b = filter (hasMeeple) (b_terrain b)
                         where hasMeeple tile = isJust $ t_meeple tile
+
+
+
+-- | Obtém o 'Tile' inicial de uma 'Zone'
+getFirstTile :: Zone -> Tile
+getFirstTile (City x _) = x
+getFirstTile (Field x _) = x
+getFirstTile (Cloister x _) = x
+
+-- | Verifica se duas 'Zone's se referem à mesma região
+isSameZone :: Zone -> Zone -> Bool
+isSameZone (City x xs) (City y ys) = (tilesAreTheSame x y) || (tilesListsAreTheSame (xs) (ys)
+isSameZone (Field x xs) (Field y ys) = (tilesAreTheSame x y) || (tilesListsAreTheSame (xs) (ys)
+isSameZone (Cloister x xs) (Cloister y ys) = (tilesAreTheSame x y) || (tilesListsAreTheSame (xs) (ys)
+isSameZone _ _ = False
+
+-- | Verifica se duas lista de 'Tile's contêm os mesmos elementos
+tilesListsAreTheSame :: [Tile] -> [Tile] -> Bool
+tilesListsAreTheSame t1s t2s = and (map (belongsTo t2s) t1s) && and (map (belongsTo t1s) t2s)
+                      where belongsTo (l:ls) tile = if tilesAreTheSame l tile then True else belongsTo ls tile
+                            belongsTo [] _ = False
+
+-- | Verifica se dois 'Tile's têm a mesma localização
+tilesAreTheSame :: Tile -> Tile -> Bool
+tilesAreTheSame a b = (t_x a)==(t_x b) && (t_y a)==(t_y b)
+
+-- | Recebe um 'Tile' com 'Meeple' e obtém a zona dominada por esse 'Meeple'
+getZoneForMeeple :: Board -> Tile -> Zone
+getZoneForMeeple b tile = 
+        case meepleType of
+          'M' -> Cloister tile (getCloisterTiles tile tiles)
+          'K' -> City tile (getCityTiles tile tiles)
+          'F' -> Field tile (getFieldTiles tile tiles)
+        where meepleType = (m_type.t_meeple) tile
+              tiles = b_terrain b
+
+-- | obtém os 'Tile's de uma cidade começando no 'Tile' especificado
+getCityTiles :: Tile -> [Tile] -> [Tile]
+getCityTiles start l = aux l [start] []
+            where aux todos (this:porVer) vistos = this:(aux todos (porVer ++ filter (\x -> x `elem` vistos) (tilesToAddBasedOnMeepleType 'K' this todos)) (this:vistos))
+                  aux _ [] _ = []
+
+-- | obtém os 'Tile's de um campo começando no 'Tile' especificado
+getFieldTiles :: Tile -> [Tile] -> [Tile]
+getFieldTiles start l = aux l [start] []
+              where aux todos (this:porVer) vistos = this:(aux todos (porVer ++ filter (\x -> x `elem` vistos) (tilesToAddBasedOnMeepleType 'F' this todos)) (this:vistos))
+                    aux _ [] _ = []
+
+-- | obtém os 'Tile's junto ao claustro e o 'Tile' do próprio claustro
+getCloisterTiles :: Tile -> [Tile] -> [Tile]
+getCloisterTiles start l = start:(map fromJust (filter isJust (map getTileAtLocation locations)))
+                  where locations = [(x-1,y+1), (x,y+1), (x+1,y+1), (x-1,y), (x+1,y), (x-1,y-1), (x,y-1), (x+1,y-1)]
+                        x = t_x start
+                        y = t_y start
+

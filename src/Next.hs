@@ -13,9 +13,9 @@ main = do entrada <- getContents
           putStrLn $ ppShow (teste seed elem)
 
 processa :: Int -> Element -> Element
-processa seed e = if isGameOver board then finalScore b else (substituteNext (updateScore b) (randomValidTileToPlay seed b))
+processa seed e = 
       where board = processaBoard e
-
+            newBoard = if isGameOver board then finalScore b else (substituteNext (updateScore b) (generateNext seed b))
 
 -- TODO:
 -- fazer a parte de calcular a pontuação
