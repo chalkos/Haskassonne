@@ -23,60 +23,45 @@ meeple2xmlString (Meeple {m_player=p, m_type=t}) = "<follower player=\""++ (show
 string2qname :: String -> QName
 string2qname str = QName str Nothing Nothing
 
--- | Converte um 'Board' num 'Element'
-board2element :: Board -> Element
-board2element b = Element (string2qname "itsWorking") [] [] Nothing
+-- | Obtém uma lista de 'Content's a partir de uma lista de 'Element's
+elements2contents :: [Element] -> [Content]
+elements2contents = map (\e -> Elem e)
 
 -- | Converte um 'Player' num 'Element'
 player2element :: Player -> Element
-player2element p = Element (string2qname "score") elAttribs=(Attr {attrKey=(QName {qName=attrK}), attrVal=attrV})
+player2element p = Element (string2qname "score") attribs [] Nothing
         where attribs = [player,score]
-              player = Attr (string2qname "player") (show.s_player p)
-              score = Attr (string2qname "score") (show.s_player p)
+              player = Attr (string2qname "player") (show $ s_player p)
+              score = Attr (string2qname "score") (show $ s_player p)
 
+-- | Converte um 'Next' num 'Element'
+next2element :: Next -> Element
+next2element n = Element (string2qname "next") attribs [] Nothing
+        where attribs = [player,tile]
+              player = Attr (string2qname "player") (show $ n_player n)
+              tile = Attr (string2qname "tile") [n_tile n]
 
+-- | Converte um 'Meeple' num 'Element'
+meeple2element :: Meeple -> Element
+meeple2element m = Element (string2qname "follower") attribs [] Nothing
+        where attribs = [player,tipo]
+              player = Attr (string2qname "player") (show $ m_player m)
+              tipo = Attr (string2qname "type") [m_type m]
 
+-- | Converte um 'Tile' num 'Element'
+tile2element :: Tile -> Element
+tile2element t = Element (string2qname "tile") attribs meeple Nothing
+        where attribs = [tipo,x,y,orientation]
+              tipo = Attr (string2qname "type") [t_type t]
+              x = Attr (string2qname "x") (show $ t_x t)
+              y = Attr (string2qname "y") (show $ t_y t)
+              orientation = Attr (string2qname "orientation") [t_orientation t]
+              meeple = if isJust $ t_meeple t then elements2contents [meeple2element $ t_meeple t] else []
 
-
-
-
-data Player = Player {
-    s_player :: Int,
-    s_score :: Int
-} deriving (Show)
-
--- | Informações sobre a pŕoxima jogada, nomeadamente o jogador que se segue e a peça que este deve colocar.
-data Next = Next {
-    n_player :: Int,
-    n_tile :: TileType
-} deriving (Show)
-
--- | Um Meeple, com informação sobre o seu dono e tipo. O tipo do Meeple (F - Farmer, K - Knight ou M - Monk) define o sítio onde este está colocado num 'Tile'.
-data Meeple = Meeple {
-    m_player :: Int,
-    m_type :: Char
-} deriving (Eq, Show)
-
--- | Uma peça de Terreno.
-data Tile = Tile {
-    -- | O tipo da peça.
-    t_type :: TileType,
-    -- | Posição horizontal da peça.
-    t_x :: Int,
-    -- | Posição vertical da peça.
-    t_y :: Int,
-    -- | Orientação da peça (N,S,W,E).
-    t_orientation :: Char,
-    -- | Um Meeple que exista na peça.
-    t_meeple :: Maybe Meeple
-} deriving (Eq, Show)
-
--- | O terreno.
-data Board = Board {
-    -- | As peças do terreno.
-    b_terrain :: [Tile],
-    -- | Os jogadores.
-    b_scores :: [Player],
-    -- | A próxima Jogada.
-    b_next :: Next
-} deriving (Show)
+-- | Converte um 'Board' num 'Element'
+board2element :: Board -> Element
+board2element b = Element (string2qname "board") [] children Nothing --WIP
+    where children = [terrain, scores, next]
+          terrain = Elem (Element (string2qname "terrain") [] (elements2contents $ map tile2element (b_terrain b)) Nothing)
+          scores = Elem (Element (string2qname "scores") [] (elements2contents $ map player2element (b_scores b)) Nothing)
+          next = Elem (next2element $ b_next b)
