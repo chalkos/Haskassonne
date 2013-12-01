@@ -190,9 +190,9 @@ validNextTiles board = validTiles
 
 -- verificar a peça seguinte e filtrar as possiveis
 -- verificar se o jogador pode usar meeples
--- | Obter um tile aletório para a próxima jogada
-randomValidNextTile :: Int -> Board -> Tile
-randomValidNextTile seed board = (todos !! (randomValue seed ((length todos)-1)))
+-- | Obter um tile aletório para jogar
+randomValidTileToPlay :: Int -> Board -> Tile
+randomValidTileToPlay seed board = (todos !! (randomValue seed ((length todos)-1)))
                     where validType = getNextTileType board
                           validTiles = filter ((validType==).t_type) tiles
                           tilesComMeeples = if ((randomValue seed 1) == 1) && nextPlayerHasMeeples board then getTilesWithMeeples board validTiles else []
@@ -269,7 +269,7 @@ searchMeeple meeple todos (this:porVer) vistos =
 -- | Encontrar os tiles adjacentes que podem ter meeples do mesmo tipo
 tilesToAddBasedOnMeepleType :: Char -> Tile -> [Tile] -> [Tile]
 tilesToAddBasedOnMeepleType 'K' tile tiles = getTilesFromMaybeTiles (map (getTileAtLocation tiles) (getFollowingTilesPositions tile City (getSidesFromTile tile)))
-tilesToAddBasedOnMeepleType 'F' tile tiles = getTilesFromMaybeTiles (map (getTileAtLocation tiles) (getFollowingTilesPositions tile City (getSidesFromTile tile)))
+tilesToAddBasedOnMeepleType 'F' tile tiles = getTilesFromMaybeTiles (map (getTileAtLocation tiles) (getFollowingTilesPositions tile Field (getSidesFromTile tile)))
 
 -- | Obtém uma lista das posições dos 'Tile's por onde se deve continuar a procurar 'Meeple's
 getFollowingTilesPositions :: Tile -> Side -> Sides -> [Location]
@@ -285,6 +285,25 @@ getFollowingTilesPositions tile Field sides = case sides of
         (a,b,Field,d) -> (t_x tile, t_y tile-1):(getFollowingTilesPositions tile Field (a,b,Both,d))
         (a,b,c,Field) -> (t_x tile-1, t_y tile):(getFollowingTilesPositions tile Field (a,b,c,Both))
         _ -> []
+
+-- | verifica se uma cidade está completa
+isCityComplete :: Location -> [Tiles] -> [Tile] -> [Tile] -> Bool
+isCityComplete _ _ [] _ = True
+isCityComplete loc todos (this:porVer) vistos =
+    -- este tile tem uma lateral de cidade que não tem tile à volta
+    if not $ null (filter (isNothing) (map (getTileAtLocation todos) (getFollowingTilesPositions this City (getSidesFromTile this))))
+    then False
+    else isCityComplete loc todos (porVer ++ filter (\x -> x `elem` vistos) (tilesToAddBasedOnMeepleType 'K' this todos)) (this:vistos)
+
+-- | conta o número de 'Tile's de uma cidade
+getCitySize :: Location -> [Tiles] -> [Tile] -> [Tile] -> Int
+getCitySize _ _ [] _ = 0
+getCitySize loc todos (this:porVer) vistos = 1 + (getCitySize loc todos (porVer ++ filter (\x -> x `elem` vistos) (tilesToAddBasedOnMeepleType 'K' this todos)) (this:vistos))
+
+-- | conta o número de 'Tile's de um campo
+getFieldSize :: Location -> [Tiles] -> [Tile] -> [Tile] -> Int
+getFieldSize _ _ [] _ = 0
+getFieldSize loc todos (this:porVer) vistos = 1 + (getFieldSize loc todos (porVer ++ filter (\x -> x `elem` vistos) (tilesToAddBasedOnMeepleType 'F' this todos)) (this:vistos))
 
 --------------------------------------------
 --------------------------------------------
@@ -302,3 +321,37 @@ contadorPecas (x:xs) =
                 'E' -> (b,c,e+1,n)
                 'N' -> (b,c,e,n+1)
               where (b,c,e,n) = contadorPecas xs
+
+-- | Obter um tile aletório para a próxima jogada
+randomValidTileToPlay :: Int -> Board -> Tile
+randomValidTileToPlay seed board = (validTiles !! (randomValue seed ((length validTiles)-1)))
+                    where validTiles = filter (pertenceAoTipoCerto) tiles
+                          tiles = possibleNextTiles board
+                          restantes = (listOfTypesFromTuple . contadorPecas . b_terrain) board
+                          pertenceAoTipoCerto t = (t_type l) `elem` restantes
+
+listOfTypesFromTuple :: (Int,Int,Int,Int) -> [Char]
+listOfTypesFromTuple (0,0,0,0) = []
+listOfTypesFromTuple (b,c,e,n) = lb ++ lc ++ le ++ ln
+                      where lb = if b > 0 then "B" else []
+                            lc = if c > 0 then "C" else []
+                            le = if e > 0 then "E" else []
+                            ln = if n > 0 then "N" else []
+
+isGameOver :: Board -> Bool
+isGameOver b = 
+        case r of
+          (0,0,0,0) -> True
+          _ -> False
+        where r = pecasRestantes b
+
+-- | Substitui a componente 'Next' de um 'Board'
+substituteNext :: Board -> Next -> Board
+substituteNext b n = Board { b_terrain = b_terrain b
+                           , b_scores = b_scores b
+                           , b_next = n}
+
+-- | Obtém todos os 'Tile's que têm 'Meeple's
+getAllTilesWithMeeples :: Board -> [Tile]
+getAllTilesWithMeeples b = filter (hasMeeple) (b_terrain b)
+                        where hasMeeple tile = isJust $ t_meeple tile

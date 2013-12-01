@@ -131,13 +131,3 @@ processaNext ((Element {elName=(QName {qName="next"}), elAttribs=attr} ):_) =
         Next {n_player=(getAttrValueInt "player" attr), n_tile=(getAttrValueChar "tile" attr)}
 processaNext (_:t) = processaNext t
 
--- | Converte um objecto 'Tile' no seu equivalente em XML
-tile2xml :: Tile -> String
-tile2xml (Tile {t_type=tipo, t_x=x, t_y=y, t_orientation=o, t_meeple=meeple}) = 
-  case meeple of
-    Nothing -> "<tile type=\""++ [tipo] ++"\" x=\""++ (show x) ++"\" y=\""++ (show y) ++"\" orientation=\""++ [o] ++"\"/>"
-    Just m -> "<tile type=\""++ [tipo] ++"\" x=\""++ (show x) ++"\" y=\""++ (show y) ++"\" orientation=\""++ [o] ++"\">\n\t" ++ (meeple2xml m) ++ "\n</tile>"
-
--- | Converte um objecto 'Meeple' no seu equivalente em XML
-meeple2xml :: Meeple -> String
-meeple2xml (Meeple {m_player=p, m_type=t}) = "<follower player=\""++ (show p) ++"\" type=\""++ [t] ++"\"/>"

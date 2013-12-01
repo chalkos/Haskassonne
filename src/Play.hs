@@ -5,6 +5,7 @@ import System.Random
 import Leitor
 import Tabuleiro
 import Text.Show.Pretty
+import Escritor
 
 --main = do entrada <- getContents
 --    let Just elem = parseXMLDoc entrada
@@ -20,15 +21,7 @@ processa :: Int -> Element -> String
 --processa e = ppShow (possibleNextTiles board)
 --processa e = ppShow (validNextTiles board)
 --processa e = ppShow (randomValidNextTile board)
-processa seed e = tile2xml (randomValidNextTile seed board)
+processa seed e = tile2xmlString (randomValidTileToPlay seed board)
          where 
             --(tiles, players, proxima) = (b_terrain board, b_scores board, b_next board)
             board = (processaBoard e)
-
-
--- verificar se se pode por lá um meeple
-    -- verificar recursivamente todas as peças à volta
-        -- se encontrar outro meeple na mesma zona, não posso por
-
--- obtendo uma lista de peças que podem ser colocadas, em que posições e com que meeples,
---   basta escolher um desses Tile de forma aletória e jogar esse
