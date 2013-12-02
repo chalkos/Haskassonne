@@ -4,6 +4,8 @@ import Text.XML.Light
 import System.Random
 import Tabuleiro
 import Leitor
+import Pontuar
+import Escritor
 import Text.Show.Pretty
 
 main = do entrada <- getContents

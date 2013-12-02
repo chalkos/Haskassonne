@@ -18,7 +18,7 @@ nPecasN = 10 :: Int
 nPecasT = nPecasB + nPecasC + nPecasE + nPecasN :: Int
 
 -- | Representa a lateral de uma peça
-data Side = Field | City | Both
+data Side = SideField | SideCity | SideBoth
     deriving (Eq, Show)
 -- | Representa as quatro laterais de uma peça
 type Sides = (Side, Side, Side, Side)
@@ -59,18 +59,18 @@ getSidesFromTile (Tile {t_type=tipo, t_orientation=orientacao}) = getSidesFromTy
 
 -- | Recebe um tipo de peça e uma orientação e retorna as suas laterais (N,S,W,E)
 getSidesFromTypeAndOrientation :: TileType -> Char -> Sides
-getSidesFromTypeAndOrientation 'B' _ = (Field, Field, Field, Field)
-getSidesFromTypeAndOrientation 'C' _ = (City, City, City, City)
+getSidesFromTypeAndOrientation 'B' _ = (SideField, SideField, SideField, SideField)
+getSidesFromTypeAndOrientation 'C' _ = (SideCity, SideCity, SideCity, SideCity)
 getSidesFromTypeAndOrientation 'E' o = case o of
-                                            'N' -> (City, Field, Field, Field)
-                                            'E' -> (Field, City, Field, Field)
-                                            'S' -> (Field, Field, City, Field)
-                                            'W' -> (Field, Field, Field, City)
+                                            'N' -> (SideCity, SideField, SideField, SideField)
+                                            'E' -> (SideField, SideCity, SideField, SideField)
+                                            'S' -> (SideField, SideField, SideCity, SideField)
+                                            'W' -> (SideField, SideField, SideField, SideCity)
 getSidesFromTypeAndOrientation 'N' o = case o of
-                                            'N' -> (City, Field, Field, City)
-                                            'E' -> (City, City, Field, Field)
-                                            'S' -> (Field, City, City, Field)
-                                            'W' -> (Field, Field, City, City)
+                                            'N' -> (SideCity, SideField, SideField, SideCity)
+                                            'E' -> (SideCity, SideCity, SideField, SideField)
+                                            'S' -> (SideField, SideCity, SideCity, SideField)
+                                            'W' -> (SideField, SideField, SideCity, SideCity)
 
 -- | Informa que tipo de tile pode estar na posição (x,y)
 possibleBordersOfTileAt :: Int -> Int -> [Tile] -> Sides
@@ -82,7 +82,7 @@ possibleBordersOfTileAt x y tiles = (southBorder (borderTypeMaybeTile up), westB
 
 -- | Dado um 'Tile' obtém as suas bordas
 borderTypeMaybeTile :: Maybe Tile -> Sides
-borderTypeMaybeTile Nothing = (Both,Both,Both,Both)
+borderTypeMaybeTile Nothing = (SideBoth,SideBoth,SideBoth,SideBoth)
 borderTypeMaybeTile (Just x) = getSidesFromTile x
 
 -- | Dado os lados, retornar o lado de cima
@@ -101,12 +101,12 @@ southBorder (_,_,x,_) = x
 westBorder :: Sides -> Side
 westBorder (_,_,_,x) = x
 
--- | Desdobra 'Sides' com lados ambíguos ('Both') numa lista de 'Sides' que apenas são 'Field' ou 'City'
+-- | Desdobra 'Sides' com lados ambíguos ('SideBoth') numa lista de 'Sides' que apenas são 'Field' ou 'SideCity'
 removeAmbiguousSides :: Sides -> [Sides]
-removeAmbiguousSides (Both, b, c, d) = (City,b,c,d):(Field,b,c,d):( (removeAmbiguousSides (City,b,c,d)) ++ (removeAmbiguousSides (Field,b,c,d)))
-removeAmbiguousSides (a, Both, c, d) = (a,City,c,d):(a,Field,c,d):( (removeAmbiguousSides (a,City,c,d)) ++ (removeAmbiguousSides (a,Field,c,d)))
-removeAmbiguousSides (a, b, Both, d) = (a,b,City,d):(a,b,Field,d):( (removeAmbiguousSides (a,b,City,d)) ++ (removeAmbiguousSides (a,b,Field,d)))
-removeAmbiguousSides (a, b, c, Both) = (a,b,c,City):(a,b,c,Field):( (removeAmbiguousSides (a,b,c,City)) ++ (removeAmbiguousSides (a,b,c,Field)))
+removeAmbiguousSides (SideBoth, b, c, d) = (SideCity,b,c,d):(SideField,b,c,d):( (removeAmbiguousSides (SideCity,b,c,d)) ++ (removeAmbiguousSides (SideField,b,c,d)))
+removeAmbiguousSides (a, SideBoth, c, d) = (a,SideCity,c,d):(a,SideField,c,d):( (removeAmbiguousSides (a,SideCity,c,d)) ++ (removeAmbiguousSides (a,SideField,c,d)))
+removeAmbiguousSides (a, b, SideBoth, d) = (a,b,SideCity,d):(a,b,SideField,d):( (removeAmbiguousSides (a,b,SideCity,d)) ++ (removeAmbiguousSides (a,b,SideField,d)))
+removeAmbiguousSides (a, b, c, SideBoth) = (a,b,c,SideCity):(a,b,c,SideField):( (removeAmbiguousSides (a,b,c,SideCity)) ++ (removeAmbiguousSides (a,b,c,SideField)))
 removeAmbiguousSides notAmbiguous = [notAmbiguous]
 
 -- | Obtém uma lista de 'Tile' que podem ser colocados numa posição a partir de uma lista de 'Sides'
@@ -123,16 +123,16 @@ getTilesFromSides x y sides = foldr (++) [] (map (getTilesFromSide x y) sides)
 getTilesFromSide :: Int -> Int -> Sides -> [Maybe Tile]
 getTilesFromSide x y sides =
   case sides of
-    (Field, Field, Field, Field) -> [Just (Tile { t_type = 'B', t_x = x, t_y = y, t_orientation = o, t_meeple = Nothing}) | o <- ['N','E','S','W']]
-    (City, City, City, City) -> [Just (Tile { t_type = 'C', t_x = x, t_y = y, t_orientation = o, t_meeple = Nothing}) | o <- ['N','E','S','W']]
-    (City, Field, Field, Field) -> [Just (Tile { t_type = 'E', t_x = x, t_y = y, t_orientation = 'N', t_meeple = Nothing})]
-    (Field, City, Field, Field) -> [Just (Tile { t_type = 'E', t_x = x, t_y = y, t_orientation = 'E', t_meeple = Nothing})]
-    (Field, Field, City, Field) -> [Just (Tile { t_type = 'E', t_x = x, t_y = y, t_orientation = 'S', t_meeple = Nothing})]
-    (Field, Field, Field, City) -> [Just (Tile { t_type = 'E', t_x = x, t_y = y, t_orientation = 'W', t_meeple = Nothing})]
-    (City, Field, Field, City) -> [Just (Tile { t_type = 'N', t_x = x, t_y = y, t_orientation = 'N', t_meeple = Nothing})]
-    (City, City, Field, Field) -> [Just (Tile { t_type = 'N', t_x = x, t_y = y, t_orientation = 'E', t_meeple = Nothing})]
-    (Field, City, City, Field) -> [Just (Tile { t_type = 'N', t_x = x, t_y = y, t_orientation = 'S', t_meeple = Nothing})]
-    (Field, Field, City, City) -> [Just (Tile { t_type = 'N', t_x = x, t_y = y, t_orientation = 'W', t_meeple = Nothing})]
+    (SideField, SideField, SideField, SideField) -> [Just (Tile { t_type = 'B', t_x = x, t_y = y, t_orientation = o, t_meeple = Nothing}) | o <- ['N','E','S','W']]
+    (SideCity, SideCity, SideCity, SideCity) -> [Just (Tile { t_type = 'C', t_x = x, t_y = y, t_orientation = o, t_meeple = Nothing}) | o <- ['N','E','S','W']]
+    (SideCity, SideField, SideField, SideField) -> [Just (Tile { t_type = 'E', t_x = x, t_y = y, t_orientation = 'N', t_meeple = Nothing})]
+    (SideField, SideCity, SideField, SideField) -> [Just (Tile { t_type = 'E', t_x = x, t_y = y, t_orientation = 'E', t_meeple = Nothing})]
+    (SideField, SideField, SideCity, SideField) -> [Just (Tile { t_type = 'E', t_x = x, t_y = y, t_orientation = 'S', t_meeple = Nothing})]
+    (SideField, SideField, SideField, SideCity) -> [Just (Tile { t_type = 'E', t_x = x, t_y = y, t_orientation = 'W', t_meeple = Nothing})]
+    (SideCity, SideField, SideField, SideCity) -> [Just (Tile { t_type = 'N', t_x = x, t_y = y, t_orientation = 'N', t_meeple = Nothing})]
+    (SideCity, SideCity, SideField, SideField) -> [Just (Tile { t_type = 'N', t_x = x, t_y = y, t_orientation = 'E', t_meeple = Nothing})]
+    (SideField, SideCity, SideCity, SideField) -> [Just (Tile { t_type = 'N', t_x = x, t_y = y, t_orientation = 'S', t_meeple = Nothing})]
+    (SideField, SideField, SideCity, SideCity) -> [Just (Tile { t_type = 'N', t_x = x, t_y = y, t_orientation = 'W', t_meeple = Nothing})]
     _ -> [Nothing]
 
 
@@ -141,7 +141,7 @@ possibleTilesAt :: [Tile] -> Location -> [Tile]
 possibleTilesAt tiles (x,y) =
   case getTileAtLocation tiles (x,y) of
     Nothing -> case (possibleBordersOfTileAt x y tiles) of
-                 (Both, Both, Both, Both) -> [] -- não há nenhum tile adjacente
+                 (SideBoth, SideBoth, SideBoth, SideBoth) -> [] -- não há nenhum tile adjacente
                  sides -> getTilesFromMaybeTiles (getTilesFromSides x y (removeDuplicates (removeAmbiguousSides sides)))
     (Just _) -> []
 
@@ -191,20 +191,10 @@ validNextTiles board = validTiles
                        where validTiles = filter ((validType==).t_type) 
                              tiles = possibleNextTiles board-}
 
--- verificar a peça seguinte e filtrar as possiveis
--- verificar se o jogador pode usar meeples
--- | Obter um tile aletório para jogar
-randomValidTileToPlay :: Int -> Board -> Tile
-randomValidTileToPlay seed board = (todos !! (randomValue seed ((length todos)-1)))
-                    where validType = getNextTileType board
-                          validTiles = filter ((validType==).t_type) tiles
-                          tilesComMeeples = if ((randomValue seed 1) == 1) && nextPlayerHasMeeples board then getTilesWithMeeples board validTiles else []
-                          tiles = possibleNextTiles board
-                          todos = validTiles ++ tilesComMeeples
 
 -- | Gera um elemento 'Next' para a próxima jogada
 generateNext :: Int -> Board -> Next
-generateNext seed board = (Next {n_tile=(t_type (todos !! (randomValue seed ((length todos)-1)))), n_player=generateNextPlayer b}
+generateNext seed board = Next (generateNextPlayer board) (t_type (todos !! (randomValue seed ((length todos)-1))))
             where validType = getNextTileType board
                   validTiles = filter ((validType==).t_type) tiles
                   tilesComMeeples = if ((randomValue seed 1) == 1) && nextPlayerHasMeeples board then getTilesWithMeeples board validTiles else []
@@ -289,30 +279,30 @@ searchMeeple meeple todos (this:porVer) vistos =
 
 -- | Encontrar os tiles adjacentes que podem ter meeples do mesmo tipo
 tilesToAddBasedOnMeepleType :: Char -> Tile -> [Tile] -> [Tile]
-tilesToAddBasedOnMeepleType 'K' tile tiles = getTilesFromMaybeTiles (map (getTileAtLocation tiles) (getFollowingTilesPositions tile City (getSidesFromTile tile)))
-tilesToAddBasedOnMeepleType 'F' tile tiles = getTilesFromMaybeTiles (map (getTileAtLocation tiles) (getFollowingTilesPositions tile Field (getSidesFromTile tile)))
+tilesToAddBasedOnMeepleType 'K' tile tiles = getTilesFromMaybeTiles (map (getTileAtLocation tiles) (getFollowingTilesPositions tile SideCity (getSidesFromTile tile)))
+tilesToAddBasedOnMeepleType 'F' tile tiles = getTilesFromMaybeTiles (map (getTileAtLocation tiles) (getFollowingTilesPositions tile SideField (getSidesFromTile tile)))
 
 -- | Obtém uma lista das posições dos 'Tile's por onde se deve continuar a procurar 'Meeple's
 getFollowingTilesPositions :: Tile -> Side -> Sides -> [Location]
-getFollowingTilesPositions tile City sides = case sides of
-        (City,b,c,d) -> (t_x tile, t_y tile+1):(getFollowingTilesPositions tile City (Both,b,c,d))
-        (a,City,c,d) -> (t_x tile+1, t_y tile):(getFollowingTilesPositions tile City (a,Both,c,d))
-        (a,b,City,d) -> (t_x tile, t_y tile-1):(getFollowingTilesPositions tile City (a,b,Both,d))
-        (a,b,c,City) -> (t_x tile-1, t_y tile):(getFollowingTilesPositions tile City (a,b,c,Both))
+getFollowingTilesPositions tile SideCity sides = case sides of
+        (SideCity,b,c,d) -> (t_x tile, t_y tile+1):(getFollowingTilesPositions tile SideCity (SideBoth,b,c,d))
+        (a,SideCity,c,d) -> (t_x tile+1, t_y tile):(getFollowingTilesPositions tile SideCity (a,SideBoth,c,d))
+        (a,b,SideCity,d) -> (t_x tile, t_y tile-1):(getFollowingTilesPositions tile SideCity (a,b,SideBoth,d))
+        (a,b,c,SideCity) -> (t_x tile-1, t_y tile):(getFollowingTilesPositions tile SideCity (a,b,c,SideBoth))
         _ -> []
-getFollowingTilesPositions tile Field sides = case sides of
-        (Field,b,c,d) -> (t_x tile, t_y tile+1):(getFollowingTilesPositions tile Field (Both,b,c,d))
-        (a,Field,c,d) -> (t_x tile+1, t_y tile):(getFollowingTilesPositions tile Field (a,Both,c,d))
-        (a,b,Field,d) -> (t_x tile, t_y tile-1):(getFollowingTilesPositions tile Field (a,b,Both,d))
-        (a,b,c,Field) -> (t_x tile-1, t_y tile):(getFollowingTilesPositions tile Field (a,b,c,Both))
+getFollowingTilesPositions tile SideField sides = case sides of
+        (SideField,b,c,d) -> (t_x tile, t_y tile+1):(getFollowingTilesPositions tile SideField (SideBoth,b,c,d))
+        (a,SideField,c,d) -> (t_x tile+1, t_y tile):(getFollowingTilesPositions tile SideField (a,SideBoth,c,d))
+        (a,b,SideField,d) -> (t_x tile, t_y tile-1):(getFollowingTilesPositions tile SideField (a,b,SideBoth,d))
+        (a,b,c,SideField) -> (t_x tile-1, t_y tile):(getFollowingTilesPositions tile SideField (a,b,c,SideBoth))
         _ -> []
 
 -- | verifica se uma cidade está completa
-isCityComplete :: Location -> [Tiles] -> [Tile] -> [Tile] -> Bool
+isCityComplete :: Location -> [Tile] -> [Tile] -> [Tile] -> Bool
 isCityComplete _ _ [] _ = True
 isCityComplete loc todos (this:porVer) vistos =
     -- este tile tem uma lateral de cidade que não tem tile à volta
-    if not $ null (filter (isNothing) (map (getTileAtLocation todos) (getFollowingTilesPositions this City (getSidesFromTile this))))
+    if not $ null (filter (isNothing) (map (getTileAtLocation todos) (getFollowingTilesPositions this SideCity (getSidesFromTile this))))
     then False
     else isCityComplete loc todos (porVer ++ filter (\x -> x `elem` vistos) (tilesToAddBasedOnMeepleType 'K' this todos)) (this:vistos)
 
@@ -333,13 +323,26 @@ contadorPecas (x:xs) =
                 'N' -> (b,c,e,n+1)
               where (b,c,e,n) = contadorPecas xs
 
--- | Obter um tile aletório para a próxima jogada
+{-- | Obter um tile aletório para a próxima jogada
 randomValidTileToPlay :: Int -> Board -> Tile
 randomValidTileToPlay seed board = (validTiles !! (randomValue seed ((length validTiles)-1)))
                     where validTiles = filter (pertenceAoTipoCerto) tiles
                           tiles = possibleNextTiles board
                           restantes = (listOfTypesFromTuple . contadorPecas . b_terrain) board
-                          pertenceAoTipoCerto t = (t_type l) `elem` restantes
+                          pertenceAoTipoCerto t = (t_type t) `elem` restantes
+-}
+
+-- | Obter um tile aletório para jogar
+randomValidTileToPlay :: Int -> Board -> Tile
+randomValidTileToPlay seed board = (todos !! (randomValue seed ((length todos)-1)))
+                    where validTiles = filter (pertenceAoTipoCerto) tiles
+                          pertenceAoTipoCerto t = (t_type t) `elem` restantes
+                          restantes = (listOfTypesFromTuple . contadorPecas . b_terrain) board
+                          tilesComMeeples = if ((randomValue seed 1) == 1) && nextPlayerHasMeeples board then getTilesWithMeeples board validTiles else []
+                          tiles = possibleNextTiles board
+                          todos = validTiles ++ tilesComMeeples
+
+
 
 listOfTypesFromTuple :: (Int,Int,Int,Int) -> [Char]
 listOfTypesFromTuple (0,0,0,0) = []
@@ -377,9 +380,9 @@ getFirstTile (Cloister x _) = x
 
 -- | Verifica se duas 'Zone's se referem à mesma região
 isSameZone :: Zone -> Zone -> Bool
-isSameZone (City x xs) (City y ys) = (tilesAreTheSame x y) || (tilesListsAreTheSame (xs) (ys)
-isSameZone (Field x xs) (Field y ys) = (tilesAreTheSame x y) || (tilesListsAreTheSame (xs) (ys)
-isSameZone (Cloister x xs) (Cloister y ys) = (tilesAreTheSame x y) || (tilesListsAreTheSame (xs) (ys)
+isSameZone (City x xs) (City y ys) = (tilesAreTheSame x y) || (tilesListsAreTheSame (xs) (ys))
+isSameZone (Field x xs) (Field y ys) = (tilesAreTheSame x y) || (tilesListsAreTheSame (xs) (ys))
+isSameZone (Cloister x xs) (Cloister y ys) = (tilesAreTheSame x y) || (tilesListsAreTheSame (xs) (ys))
 isSameZone _ _ = False
 
 -- | Verifica se duas lista de 'Tile's contêm os mesmos elementos
@@ -399,7 +402,7 @@ getZoneForMeeple b tile =
           'M' -> Cloister tile (getCloisterTiles tile tiles)
           'K' -> City tile (getCityTiles tile tiles)
           'F' -> Field tile (getFieldTiles tile tiles)
-        where meepleType = (m_type.t_meeple) tile
+        where meepleType = (m_type.fromJust.t_meeple) tile
               tiles = b_terrain b
 
 -- | obtém os 'Tile's de uma cidade começando no 'Tile' especificado
@@ -416,7 +419,7 @@ getFieldTiles start l = aux l [start] []
 
 -- | obtém os 'Tile's junto ao claustro e o 'Tile' do próprio claustro
 getCloisterTiles :: Tile -> [Tile] -> [Tile]
-getCloisterTiles start l = start:(map fromJust (filter isJust (map getTileAtLocation locations)))
+getCloisterTiles start l = start:(map fromJust (filter isJust (map (getTileAtLocation l) locations)))
                   where locations = [(x-1,y+1), (x,y+1), (x+1,y+1), (x-1,y), (x+1,y), (x-1,y-1), (x,y-1), (x+1,y-1)]
                         x = t_x start
                         y = t_y start

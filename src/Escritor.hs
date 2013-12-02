@@ -6,13 +6,14 @@ import Data.Char
 import Text.XML.Light
 import Text.XML.Light.Types
 import Text.Show.Pretty
+import Data.Maybe
 
 -- | Converte um objecto 'Tile' no seu equivalente em XML
 tile2xmlString :: Tile -> String
 tile2xmlString (Tile {t_type=tipo, t_x=x, t_y=y, t_orientation=o, t_meeple=meeple}) = 
   case meeple of
     Nothing -> "<tile type=\""++ [tipo] ++"\" x=\""++ (show x) ++"\" y=\""++ (show y) ++"\" orientation=\""++ [o] ++"\"/>"
-    Just m -> "<tile type=\""++ [tipo] ++"\" x=\""++ (show x) ++"\" y=\""++ (show y) ++"\" orientation=\""++ [o] ++"\">\n\t" ++ (meeple2xml m) ++ "\n</tile>"
+    Just m -> "<tile type=\""++ [tipo] ++"\" x=\""++ (show x) ++"\" y=\""++ (show y) ++"\" orientation=\""++ [o] ++"\">\n\t" ++ (meeple2xmlString m) ++ "\n</tile>"
 
 -- | Converte um objecto 'Meeple' no seu equivalente em XML
 meeple2xmlString :: Meeple -> String
@@ -56,7 +57,7 @@ tile2element t = Element (string2qname "tile") attribs meeple Nothing
               x = Attr (string2qname "x") (show $ t_x t)
               y = Attr (string2qname "y") (show $ t_y t)
               orientation = Attr (string2qname "orientation") [t_orientation t]
-              meeple = if isJust $ t_meeple t then elements2contents [meeple2element $ t_meeple t] else []
+              meeple = if isJust $ t_meeple t then elements2contents [meeple2element.fromJust.t_meeple $ t] else []
 
 -- | Converte um 'Board' num 'Element'
 board2element :: Board -> Element

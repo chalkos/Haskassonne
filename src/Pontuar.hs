@@ -3,6 +3,8 @@ module Pontuar where
 import Text.XML.Light
 import Tabuleiro
 import Leitor
+import Data.Maybe
+import Data.List
 
 -- | Representa uma 'Zone' e a sua pontuação
 type ScoredTile = (Zone, Int)
