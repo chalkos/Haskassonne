@@ -298,13 +298,13 @@ getFollowingTilesPositions tile SideField sides = case sides of
         _ -> []
 
 -- | verifica se uma cidade está completa
-isCityComplete :: Location -> [Tile] -> [Tile] -> [Tile] -> Bool
-isCityComplete _ _ [] _ = True
-isCityComplete loc todos (this:porVer) vistos =
+isCityComplete :: [Tile] -> [Tile] -> [Tile] -> Bool
+isCityComplete _ [] _ = True
+isCityComplete todos (this:porVer) vistos =
     -- este tile tem uma lateral de cidade que não tem tile à volta
     if not $ null (filter (isNothing) (map (getTileAtLocation todos) (getFollowingTilesPositions this SideCity (getSidesFromTile this))))
     then False
-    else isCityComplete loc todos (porVer ++ filter (\x -> x `elem` vistos) (tilesToAddBasedOnMeepleType 'K' this todos)) (this:vistos)
+    else isCityComplete todos (porVer ++ filter (\x -> x `elem` vistos) (tilesToAddBasedOnMeepleType 'K' this todos)) (this:vistos)
 
 --------------------------------------------
 --------------------------------------------
