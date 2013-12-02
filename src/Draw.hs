@@ -17,5 +17,6 @@ processa :: Element -> String
 {-processa e = ppShow (buildMap (b_terrain board) (getLimits board))
              where board = processaBoard e-}
 --processa e = ppShow (rotateArt artTest 'N')
-processa e = drawMap (buildMap (b_terrain board) (getLimits board))
-             where board = processaBoard e
+processa e = if hasNoTiles then "" else drawMap (buildMap (b_terrain board) (getLimits board))
+            where board = processaBoard e
+                  hasNoTiles = null $ b_terrain board

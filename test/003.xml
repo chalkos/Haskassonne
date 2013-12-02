@@ -1,0 +1,17 @@
+<!-- tabuleiro sem peças 
+	Verifica Draw
+		- não desenha nada
+
+	Verifica Play
+		- jogada da primeira peça, com ou sem meeple do jogador definido em Next
+		- a peça é sempre E independentemente do que é especificado na tag next
+-->
+<board>
+	<terrain>
+	</terrain>
+	<scores>
+		<score player="1" score="0"/>
+		<score player="2" score="0"/>
+	</scores>
+	<next player="1" tile="E"/>
+</board>

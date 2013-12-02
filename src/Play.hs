@@ -21,7 +21,9 @@ processa :: Int -> Element -> String
 --processa e = ppShow (possibleNextTiles board)
 --processa e = ppShow (validNextTiles board)
 --processa e = ppShow (randomValidNextTile board)
-processa seed e = tile2xmlString (randomValidTileToPlay seed board)
+processa seed e = tile2xmlString tileToPlay
          where 
             --(tiles, players, proxima) = (b_terrain board, b_scores board, b_next board)
             board = (processaBoard e)
+            hasNoTiles = null $ b_terrain board
+            tileToPlay = if hasNoTiles then playFirstTile seed board else randomValidTileToPlay seed board

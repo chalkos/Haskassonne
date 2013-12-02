@@ -1,4 +1,15 @@
-<board players="2">
+<!-- exemplo do enunciado 
+	Verifica draw:
+		- desenho correcto do tabuleiro
+	
+	Verifica play
+		- jogar uma nova peça válida
+	
+	Verifica next
+		- sugerir uma peça válida
+
+-->
+<board>
 	<terrain>
 		<tile type="E" x="0" y="0" orientation="E">
 			<follower player="1" type="K"/>

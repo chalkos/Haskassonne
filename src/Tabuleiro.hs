@@ -6,6 +6,8 @@ import Data.List
 import Data.Maybe
 import Data.Char
 
+import Debug.Trace
+
 -- | Representa uma zona do mapa: uma cidade, um campo ou um claustro, começando num determinado 'Tile'.
 -- | O 'Tile' inicial também deve estar na lista.
 data Zone = City Tile [Tile] | Field Tile [Tile] | Cloister Tile [Tile]
@@ -195,11 +197,7 @@ validNextTiles board = validTiles
 -- | Gera um elemento 'Next' para a próxima jogada
 generateNext :: Int -> Board -> Next
 generateNext seed board = Next (generateNextPlayer board) (t_type (todos !! (randomValue seed ((length todos)-1))))
-            where validType = getNextTileType board
-                  validTiles = filter ((validType==).t_type) tiles
-                  tilesComMeeples = if ((randomValue seed 1) == 1) && nextPlayerHasMeeples board then getTilesWithMeeples board validTiles else []
-                  tiles = possibleNextTiles board
-                  todos = validTiles ++ tilesComMeeples
+            where todos = possibleNextTiles board
 
 -- | Determina o número do próximo jogador
 generateNextPlayer :: Board -> Int
@@ -304,7 +302,7 @@ isCityComplete todos (this:porVer) vistos =
     -- este tile tem uma lateral de cidade que não tem tile à volta
     if not $ null (filter (isNothing) (map (getTileAtLocation todos) (getFollowingTilesPositions this SideCity (getSidesFromTile this))))
     then False
-    else isCityComplete todos (porVer ++ filter (\x -> x `elem` vistos) (tilesToAddBasedOnMeepleType 'K' this todos)) (this:vistos)
+    else isCityComplete todos (porVer ++ filter (\x -> not $ x `elem` vistos) (tilesToAddBasedOnMeepleType 'K' this todos)) (this:vistos)
 
 --------------------------------------------
 --------------------------------------------
@@ -341,6 +339,23 @@ randomValidTileToPlay seed board = (todos !! (randomValue seed ((length todos)-1
                           tilesComMeeples = if ((randomValue seed 1) == 1) && nextPlayerHasMeeples board then getTilesWithMeeples board validTiles else []
                           tiles = possibleNextTiles board
                           todos = validTiles ++ tilesComMeeples
+
+-- | Jogar a primeira peça.
+playFirstTile :: Int -> Board -> Tile
+playFirstTile seed board = Tile 'E' 0 0 theOrientation theMeeple
+              where firstPlayer = n_player $ b_next board
+                    theMeeple = case (randomValue seed 9) of
+                                    0 -> Nothing -- com 10% de prob
+                                    1 -> Just (Meeple firstPlayer 'F') -- com 10% de prob
+                                    _ -> Just (Meeple firstPlayer 'K') -- com 80% de prob
+                    theOrientation = case (randomValue seed 3) of -- cada um com 25% de prob
+                                    0 -> 'N'
+                                    1 -> 'E'
+                                    2 -> 'S'
+                                    3 -> 'W'
+
+
+
 
 
 
