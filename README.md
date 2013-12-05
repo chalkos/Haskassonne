@@ -11,10 +11,11 @@ Informação geral sobre o jogo Carcassonne, sobre o qual o Haskassonne se basei
 Makefile
 --------
 
-* clean - apaga ficheiros temporários
 * draw - cria o executável do draw
 * next - cria o executável do next
 * play - cria o executável do play
+* all - cria os três executáveis
+* clean - apaga ficheiros temporários
 
 Random Info
 ----
@@ -36,7 +37,6 @@ A configuração do sublime usando 4 espaços fica assim (preferrences-settings-
 
     cabal install xml
     cabal install pretty-show
-    cabal install MissingH
 
 #### Docs do XML light
 
