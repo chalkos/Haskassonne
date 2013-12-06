@@ -15,6 +15,7 @@ Makefile
 * next - cria o executável do next
 * play - cria o executável do play
 * all - cria os três executáveis
+* doc - gera a documentação
 * clean - apaga ficheiros temporários
 
 Random Info

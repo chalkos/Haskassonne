@@ -1,4 +1,4 @@
--- | Faz cenas sobre o tabuleiro
+-- | Contém funções para alterar e obter diversas informações sobre o tabuleiro
 module Tabuleiro where
 
 import Leitor
@@ -12,11 +12,19 @@ import Debug.Trace
 -- | O 'Tile' inicial também deve estar na lista.
 data Zone = City Tile [Tile] | Field Tile [Tile] | Cloister Tile [Tile]
 
--- | Números de peças que podem ser jogadas
+-- | Números de peças do tipo B que podem ser jogadas
 nPecasB = 6 :: Int
+
+-- | Números de peças do tipo C que podem ser jogadas
 nPecasC = 2 :: Int
+
+-- | Números de peças do tipo E que podem ser jogadas
 nPecasE = 18 :: Int
+
+-- | Números de peças do tipo N que podem ser jogadas
 nPecasN = 10 :: Int
+
+-- | Números de peças que podem ser jogadas (no total)
 nPecasT = nPecasB + nPecasC + nPecasE + nPecasN :: Int
 
 -- | Representa a lateral de uma peça
@@ -29,13 +37,13 @@ type Sides = (Side, Side, Side, Side)
 removeDuplicates :: Eq a => [a] -> [a]
 removeDuplicates = foldl (\vistos x -> if x `elem` vistos then vistos else vistos ++ [x]) []
 
--- obtém o tile que está numa posição, ou Nothing caso não exista nenhum nessa posição
+-- | Obtém o tile que está numa posição, ou Nothing caso não exista nenhum nessa posição
 getTileAtLocation :: [Tile] -> Location -> Maybe Tile
 getTileAtLocation [] _ = Nothing
 getTileAtLocation (tile@(Tile {t_x=tx, t_y=ty}):t) loc@(x,y) = if tx==x && ty==y then Just tile
                                                                else getTileAtLocation t loc
 
--- obtém os valores máximos e mínimos para as coordenadas X e Y
+-- | Obtém os valores máximos e mínimos para as coordenadas X e Y
 getLimits :: Board -> Limits
 getLimits (Board {b_terrain=tiles}) = Limits { l_Xmin = xmin
                                              , l_Xmax = xmax
@@ -45,9 +53,7 @@ getLimits (Board {b_terrain=tiles}) = Limits { l_Xmin = xmin
                                          where (xmin, xmax) = getTileLimit (t_x) tiles
                                                (ymin, ymax) = getTileLimit (t_y) tiles
 
--- obtém o valor máximo para uma das coordenadas X ou Y, especificadas como t_x ou t_y
--- t_x :: (Tile->Int)
--- t_y :: (Tile->Int)
+-- | Obtém o valor máximo para uma das coordenadas X ou Y, especificadas como 't_x' ou 't_y'
 getTileLimit :: (Tile->Int) -> [Tile] -> (Int,Int)
 getTileLimit member l = (minimum res, maximum res)
   where res = map (member) l
@@ -177,7 +183,7 @@ meeplesPlacedByNextPlayer board = length (filter ((nPlayer==).m_player) (map (fr
 
 -- verificar a peça seguinte e filtrar as possiveis
 -- verificar se o jogador pode usar meeples
--- | Obter os 'Tile's que podem ser jogados, com e sem 'Meeple's
+-- Obter os 'Tile's que podem ser jogados, com e sem 'Meeple's
 {-validNextTilesWithMeeples :: Board -> [Tile]
 validNextTilesWithMeeples board = validTiles ++ tilesComMeeples
                            where validType = getNextTileType board
@@ -187,7 +193,7 @@ validNextTilesWithMeeples board = validTiles ++ tilesComMeeples
 
 -- verificar a peça seguinte e filtrar as possiveis
 -- verificar se o jogador pode usar meeples
--- | Obter os 'Tile's que podem ser jogados
+-- Obter os 'Tile's que podem ser jogados
 {-validNextTiles :: Board -> [Tile]
 validNextTiles board = validTiles
                        where validTiles = filter ((validType==).t_type) 
@@ -208,7 +214,7 @@ generateNextPlayer b = getNext (head players) players
                   getNext l (x:[]) = if x==actual then l else error "não conseguiu determinar o proximo jogador"
 
                                 
--- seed deve ser entre 0 e 1000
+-- | Fornecendo uma seed entre 0 e 1000, produz um número entre 0 e o segundo argumento.
 randomValue :: Int -> Int -> Int
 randomValue seed maximo = seed `mod` (maximo+1) 
 
@@ -267,7 +273,7 @@ canThisTileHaveMeeple newTile board meepleType = searchMeeple meepleType tiles [
 -- todos, porVer, vistos
 -- verificar se o proprio tem meeple, se tiver return false
 -- verificar quais dos tiles adicionar ao por ver com base nas bordas e no tipo de meeple
--- | Procurar 'Meeples's
+-- | Procurar 'Meeple's
 searchMeeple :: Char -> [Tile] -> [Tile] -> [Tile] -> Bool
 searchMeeple _ _ [] _ = True
 searchMeeple meeple todos (this:porVer) vistos = 
@@ -307,10 +313,12 @@ isCityComplete todos (this:porVer) vistos =
 --------------------------------------------
 --------------------------------------------
 
+-- | Verifica quantas peças de cada tipo (B,C,E,N) estão por colocar
 pecasRestantes :: Board -> (Int,Int,Int,Int)
 pecasRestantes = restantes . contadorPecas . b_terrain
                  where restantes (b,c,e,n) = (nPecasB-b, nPecasC-c, nPecasE-e, nPecasN-n)
 
+-- | Verifica quantas peças de cada tipo (B,C,E,N) estão colocadas
 contadorPecas :: [Tile] -> (Int,Int,Int,Int)
 contadorPecas [] = (0,0,0,0)
 contadorPecas (x:xs) =
@@ -335,12 +343,12 @@ randomValidTileToPlay :: Int -> Board -> Tile
 randomValidTileToPlay seed board = (todos !! (randomValue seed ((length todos)-1)))
                     where validTiles = filter (pertenceAoTipoCerto) tiles
                           pertenceAoTipoCerto t = (t_type t) `elem` restantes
-                          restantes = (listOfTypesFromTuple . contadorPecas . b_terrain) board
+                          restantes = (listOfTypesFromTuple . pecasRestantes) board
                           tilesComMeeples = if ((randomValue seed 1) == 1) && nextPlayerHasMeeples board then getTilesWithMeeples board validTiles else []
                           tiles = possibleNextTiles board
                           todos = validTiles ++ tilesComMeeples
 
--- | Jogar a primeira peça.
+-- | Jogar a primeira peça
 playFirstTile :: Int -> Board -> Tile
 playFirstTile seed board = Tile 'E' 0 0 theOrientation theMeeple
               where firstPlayer = n_player $ b_next board
@@ -354,12 +362,8 @@ playFirstTile seed board = Tile 'E' 0 0 theOrientation theMeeple
                                     2 -> 'S'
                                     3 -> 'W'
 
-
-
-
-
-
-listOfTypesFromTuple :: (Int,Int,Int,Int) -> [Char]
+-- | Obter uma lista de 'TileType' a partir de um tuplo com as quantidades de peças (B,C,E,N)
+listOfTypesFromTuple :: (Int,Int,Int,Int) -> [TileType]
 listOfTypesFromTuple (0,0,0,0) = []
 listOfTypesFromTuple (b,c,e,n) = lb ++ lc ++ le ++ ln
                       where lb = if b > 0 then "B" else []
@@ -367,6 +371,7 @@ listOfTypesFromTuple (b,c,e,n) = lb ++ lc ++ le ++ ln
                             le = if e > 0 then "E" else []
                             ln = if n > 0 then "N" else []
 
+-- | Verifica se o jogo terminou
 isGameOver :: Board -> Bool
 isGameOver b = 
         case r of
@@ -384,8 +389,6 @@ substituteNext b n = Board { b_terrain = b_terrain b
 getAllTilesWithMeeples :: Board -> [Tile]
 getAllTilesWithMeeples b = filter (hasMeeple) (b_terrain b)
                         where hasMeeple tile = isJust $ t_meeple tile
-
-
 
 -- | Obtém o 'Tile' inicial de uma 'Zone'
 getFirstTile :: Zone -> Tile
@@ -420,13 +423,13 @@ getZoneForMeeple b tile =
         where meepleType = (m_type.fromJust.t_meeple) tile
               tiles = b_terrain b
 
--- | obtém os 'Tile's de uma cidade começando no 'Tile' especificado
+-- | Obtém os 'Tile's de uma cidade começando no 'Tile' especificado
 getCityTiles :: Tile -> [Tile] -> [Tile]
 getCityTiles start l = aux l [start] []
             where aux todos (this:porVer) vistos = this:(aux todos (porVer ++ filter (\x -> x `elem` vistos) (tilesToAddBasedOnMeepleType 'K' this todos)) (this:vistos))
                   aux _ [] _ = []
 
--- | obtém os 'Tile's de um campo começando no 'Tile' especificado
+-- | Obtém os 'Tile's de um campo começando no 'Tile' especificado
 getFieldTiles :: Tile -> [Tile] -> [Tile]
 getFieldTiles start l = aux l [start] []
               where aux todos (this:porVer) vistos = this:(aux todos (porVer ++ filter (\x -> x `elem` vistos) (tilesToAddBasedOnMeepleType 'F' this todos)) (this:vistos))

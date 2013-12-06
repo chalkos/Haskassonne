@@ -1,3 +1,4 @@
+-- | Trata de contar os pontos
 module Pontuar where
 
 import Text.XML.Light
@@ -29,7 +30,7 @@ scorePlayers scores (p:ps) = (Player {s_player=(s_player p), s_score=(s_player p
               where belongsToPlayer st = ((m_player.fromJust.t_meeple.getFirstTile.fst) st)==(s_player p)
                     playerScore = sum $ map snd (filter (belongsToPlayer) scores)
 
-
+-- | Produz uma nova lista de 'Tile's sem os 'Meeple's que já foram pontuados
 removeMeeples :: [ScoredTile] -> [Tile] -> [Tile]
 removeMeeples _ [] = []
 removeMeeples stiles (t:ts) = newTile:(removeMeeples stiles ts)
@@ -55,7 +56,7 @@ scoreZone (Cloister _ tiles) = (length tiles)-1
 scoreZone (City _ tiles) = length tiles
 scoreZone (Field _ tiles) = length tiles
 
--- | Verifica se o monk deve ser retirado do tabuleiro
+-- | Verifica se o 'Meeple' monk deve ser retirado do tabuleiro
 isMonkDone :: Board -> Tile -> Bool
 isMonkDone b tMeeple = (m_type meeple) == 'M' && existsTile (x-1,y+1) && existsTile (x,y+1) && existsTile (x+1,y+1) && existsTile (x-1,y) && existsTile (x+1,y) && existsTile (x-1,y-1) && existsTile (x,y-1) && existsTile (x+1,y-1)
           where meeple = fromJust.t_meeple $ tMeeple
@@ -64,7 +65,7 @@ isMonkDone b tMeeple = (m_type meeple) == 'M' && existsTile (x-1,y+1) && existsT
                 y = t_y tMeeple
                 existsTile location = isJust $ getTileAtLocation tiles location
 
--- | Verifica se o knight deve ser retirado do tabuleiro
+-- | Verifica se o 'Meeple' knight deve ser retirado do tabuleiro
 isKnightDone :: Board -> Tile -> Bool
 isKnightDone b tMeeple = (m_type meeple) == 'K' && isCityComplete tiles [tMeeple] []
             where meeple = fromJust.t_meeple $ tMeeple
@@ -72,11 +73,8 @@ isKnightDone b tMeeple = (m_type meeple) == 'K' && isCityComplete tiles [tMeeple
                   x = t_x tMeeple
                   y = t_y tMeeple
 
-
-
-
 -- scoreAZone :: [ScoredTile] -> [Int] -> [ScoredTile]
--- | Obtém o verdadeiro score associado a uma zona depois de contar o número de meeples
+-- | Obtém o verdadeiro score associado a uma zona depois de contar o número de 'Meeple's presente nessa zona
 getRealScoresForZones :: [ScoredTile] -> [ScoredTile]
 getRealScoresForZones zones = concat $ zipWith (scoreAZone) groupedZones playersToBeScored
                       where groupedZones = joinScoredTilesByZone zones [] -- [[ScoredTile]]
@@ -87,9 +85,7 @@ getRealScoresForZones zones = concat $ zipWith (scoreAZone) groupedZones players
                                   where shouldScore = elem ((m_player.fromJust.t_meeple.getFirstTile) x) pls
                                         score = if shouldScore then scoreZone x else 0
 
-
-
--- | agrupa os 'ScoredTile' caso se refiram à mesma zona
+-- | Agrupa os 'ScoredTile' caso se refiram à mesma 'Zone'
 joinScoredTilesByZone :: [ScoredTile] -> [ScoredTile] -> [[ScoredTile]]
 joinScoredTilesByZone [] _ = []
 joinScoredTilesByZone (x:xs) feitos = mesmaZona : (joinScoredTilesByZone proximos feitosAgora)
@@ -99,7 +95,7 @@ joinScoredTilesByZone (x:xs) feitos = mesmaZona : (joinScoredTilesByZone proximo
                             pertenceAfeitosAgora [] _ = False
                             pertenceAfeitosAgora ((y,_):ys) (val,_) = if isSameZone y val then True else pertenceAfeitosAgora ys (val,0)
 
--- | Obtém uma lista com os jogadores que devem receber pontuação
+-- | Obtém uma lista com os jogadores que devem receber pontuação de acordo com o número de 'Meeple's que têm numa 'Zone'
 playersToScore :: [ScoredTile] -> [Int]
 playersToScore sTiles = map fst $ filter ((maxMeeples==).snd) playersWithMeeples
               where meeples = map (\(x,_)->fromJust.t_meeple.getFirstTile $ x) sTiles
@@ -108,11 +104,6 @@ playersToScore sTiles = map fst $ filter ((maxMeeples==).snd) playersWithMeeples
                     owners = removeDuplicates allOwners
                     playersWithMeeples = zipWith (\x y -> (x,y)) owners nrMeeples
                     maxMeeples = maximum nrMeeples
-
-
--- (filter (\a-> a `elem` allOwners) owners)
-
-
 
 
 -- para cada meeple calcular quantos pontos vale

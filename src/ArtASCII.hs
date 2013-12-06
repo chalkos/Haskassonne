@@ -1,25 +1,32 @@
+-- | Contém funções relacionadas com o desenho dos caracteres no programa Draw
 module ArtASCII where
 
 import Data.List.Utils
-
 import Leitor
 import Tabuleiro
 
 -- | Representa um tile em ArtASCII
 type Art = [String]
 
---------------------
--- fazer o artASCII
---------------------
--- as peças do jogo
+-- | O 'Art' do 'Tile' do 'Tiletype' B
 artB = ["..F..", "..O..", ".OMO.", "..O..", "....."] :: Art
+
+-- | O 'Art' do 'Tile' do 'Tiletype' C
 artC = ["*****", "*****", "**K**", "*****", "*****"] :: Art
+
+-- | O 'Art' do 'Tile' do 'Tiletype' E
 artE = ["*****", ".*K*.", "..*..", ".....", "..F.."] :: Art
+
+-- | O 'Art' do 'Tile' do 'Tiletype' N
 artN = ["*****", "*K**.", "***..", "**.F.", "*...."] :: Art
+
+-- | Um 'Art' que representa um espaço vazio
 artVoid = ["     ","     ","     ","     ","     "] :: Art
+
+
 --artTest = ["ABCDE", "FGHIJ", "KLMNO", "PQRST", "UVWXY"] :: Art
 
--- organiza uma matriz de Maybe Tile
+-- | Organiza uma matriz de Maybe Tile
 buildMap :: [Tile] -> Limits -> Map
 buildMap tiles dim = if ymax /= ymin then [ [(getTileAtLocation tiles (x,y)) | x <- [xmin..xmax]] | y <- [ymax, (ymax-1)..ymin] ]
                      else [ [(getTileAtLocation tiles (x,y)) | x <- [xmin..xmax]] | y <- [ymax] ]
@@ -28,11 +35,11 @@ buildMap tiles dim = if ymax /= ymin then [ [(getTileAtLocation tiles (x,y)) | x
                                 ymin = l_Ymin dim
                                 ymax = l_Ymax dim
 
--- Converte os tiles do mapa para Arts e depois transforma-os numa string
+-- | Converte os tiles do mapa para Arts e depois transforma-os numa string
 drawMap :: Map -> String
 drawMap mapa = artTiles2String (map (\y-> (map (\x->tile2Art x) y)) mapa)
 
--- constroi uma string com a matriz de Art
+-- | Constroi uma 'String' com a matriz de Art
 artTiles2String :: [[Art]] -> String
 artTiles2String [] = ""
 artTiles2String (h1@(([]):t2):t1) = artTiles2String t1

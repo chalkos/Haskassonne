@@ -1,4 +1,4 @@
-.PHONY: clean draw next play dir_bin dir_doc dir_report all
+.PHONY: clean draw next play dir_bin dir_doc dir_report all doc
 
 FLAGS ?= -O -isrc/ -o
 
@@ -36,3 +36,7 @@ bin/play: dir_bin
 	ghc $(FLAGS) $@ src/Play.hs
 
 play: bin/play
+
+doc: dir_doc
+	@echo "  (gerando documentacao)"
+	cd src; haddock -h -o ../doc/ ArtASCII.hs Escritor.hs Leitor.hs Pontuar.hs Tabuleiro.hs
