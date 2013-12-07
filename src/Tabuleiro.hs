@@ -218,57 +218,53 @@ generateNextPlayer b = getNext (head players) players
 randomValue :: Int -> Int -> Int
 randomValue seed maximo = seed `mod` (maximo+1) 
 
-
--- | Gera um valor pseudo-aleatório no intervalo [0; maximo]
-pseudoRandomValue :: [Tile] -> Int -> Int
-pseudoRandomValue tiles maximo = (foldr (+) 0 (map (\x -> (t_x x) + (t_y x) + (ord (t_type x)) + (ord (t_orientation x))) tiles)) `mod` (maximo+1)
-
 -- | A partir do tabuleiro e da lista de 'Tile's que podem ser colocados, devolver uma lista de 'Tile's que podem ser colocados com e sem 'Meeples's
 getTilesWithMeeples :: Board -> [Tile] -> [Tile]
 getTilesWithMeeples board tiles = knights ++ farmers ++ monks
-                            where knights = getTilesFromMaybeTiles (map (getTileWithKnight board) tiles)
-                                  farmers = getTilesFromMaybeTiles (map (getTileWithFarmer board) tiles)
-                                  monks = getTilesFromMaybeTiles (map (getTileWithMonk) tiles)
+                            where knights = getTilesFromMaybeTiles (map (getTileWithKnight board owner) tiles)
+                                  farmers = getTilesFromMaybeTiles (map (getTileWithFarmer board owner) tiles)
+                                  monks = getTilesFromMaybeTiles (map (getTileWithMonk owner) tiles)
+                                  owner = s_player $ getNextPlayer board
 
 -- | Verificar todos os tile de cidade à volta a procura de um outro meeple, se nao existir, pode colocar
-getTileWithKnight :: Board -> Tile -> Maybe Tile
-getTileWithKnight board tile =  if (tipo=='C'||tipo=='E'||tipo=='N') && (canThisTileHaveMeeple tile board 'K')
-                                then Just (Tile { t_type = tipo
-                                                , t_x = (t_x tile)
-                                                , t_y = (t_y tile)
-                                                , t_orientation = (t_type tile)
-                                                , t_meeple = Just (Meeple {m_player=0,m_type='K'})
-                                                })
-                                else Nothing
-                                where tipo = t_type tile
+getTileWithKnight :: Board -> Int -> Tile -> Maybe Tile
+getTileWithKnight board owner tile =  if (tipo=='C'||tipo=='E'||tipo=='N') && (canThisTileHaveMeeple tile board 'K')
+                                      then Just (Tile { t_type = tipo
+                                                      , t_x = (t_x tile)
+                                                      , t_y = (t_y tile)
+                                                      , t_orientation = (t_orientation tile)
+                                                      , t_meeple = Just (Meeple {m_player=owner,m_type='K'})
+                                                      })
+                                      else Nothing
+                                      where tipo = t_type tile
 
 -- | Verificar todos os tile de field à volta a procura de um outro meeple, se nao existir, pode colocar
-getTileWithFarmer :: Board -> Tile -> Maybe Tile
-getTileWithFarmer board tile =  if (tipo=='B'||tipo=='E'||tipo=='N') && (canThisTileHaveMeeple tile board 'F')
-                                then Just (Tile { t_type = tipo
-                                                , t_x = (t_x tile)
-                                                , t_y = (t_y tile)
-                                                , t_orientation = (t_type tile)
-                                                , t_meeple = Just (Meeple {m_player=0,m_type='F'})
-                                                })
-                                else Nothing
-                                where tipo = t_type tile
+getTileWithFarmer :: Board -> Int -> Tile -> Maybe Tile
+getTileWithFarmer board owner tile =  if (tipo=='B'||tipo=='E'||tipo=='N') && (canThisTileHaveMeeple tile board 'F')
+                                      then Just (Tile { t_type = tipo
+                                                      , t_x = (t_x tile)
+                                                      , t_y = (t_y tile)
+                                                      , t_orientation = (t_orientation tile)
+                                                      , t_meeple = Just (Meeple {m_player=owner,m_type='F'})
+                                                      })
+                                      else Nothing
+                                      where tipo = t_type tile
 
 -- | Verificar todos os tile de field à volta a procura de um outro meeple, se nao existir, pode colocar
-getTileWithMonk :: Tile -> Maybe Tile
-getTileWithMonk tile =  if (t_type tile) == 'B'
-                        then Just (Tile { t_type = 'B'
-                                        , t_x = (t_x tile)
-                                        , t_y = (t_y tile)
-                                        , t_orientation = (t_type tile)
-                                        , t_meeple = Just (Meeple {m_player=0,m_type='M'})
-                                        })
-                        else Nothing
+getTileWithMonk :: Int -> Tile -> Maybe Tile
+getTileWithMonk owner tile = if (t_type tile) == 'B'
+                            then Just (Tile { t_type = 'B'
+                                            , t_x = (t_x tile)
+                                            , t_y = (t_y tile)
+                                            , t_orientation = (t_orientation tile)
+                                            , t_meeple = Just (Meeple {m_player=owner,m_type='M'})
+                                            })
+                            else Nothing
 
 -- | Verifica se um tile pode ter um meeple do tipo definido
 canThisTileHaveMeeple :: Tile -> Board -> Char -> Bool
 canThisTileHaveMeeple newTile board meepleType = searchMeeple meepleType tiles [newTile] []
-                                       where tiles = b_terrain board
+                      where tiles = b_terrain board
 
 -- todos, porVer, vistos
 -- verificar se o proprio tem meeple, se tiver return false
@@ -277,9 +273,10 @@ canThisTileHaveMeeple newTile board meepleType = searchMeeple meepleType tiles [
 searchMeeple :: Char -> [Tile] -> [Tile] -> [Tile] -> Bool
 searchMeeple _ _ [] _ = True
 searchMeeple meeple todos (this:porVer) vistos = 
-    if isJust (t_meeple this)
+    if isJust (t_meeple this) && (m_type $ fromJust (t_meeple this)) == meeple
     then False -- encontrou um meeple, não se pode colocar nenhum meeple no tile original
-    else searchMeeple meeple todos (porVer ++ filter (\x -> x `elem` vistos) (tilesToAddBasedOnMeepleType meeple this todos)) (this:vistos)
+    else searchMeeple meeple todos (porVer ++ novos) (this:vistos)
+    where novos = filter (\x -> not $ x `elem` vistos) (tilesToAddBasedOnMeepleType meeple this todos)
 
 -- | Encontrar os tiles adjacentes que podem ter meeples do mesmo tipo
 tilesToAddBasedOnMeepleType :: Char -> Tile -> [Tile] -> [Tile]
@@ -340,13 +337,18 @@ randomValidTileToPlay seed board = (validTiles !! (randomValue seed ((length val
 
 -- | Obter um tile aletório para jogar
 randomValidTileToPlay :: Int -> Board -> Tile
-randomValidTileToPlay seed board = (todos !! (randomValue seed ((length todos)-1)))
-                    where validTiles = filter (pertenceAoTipoCerto) tiles
+randomValidTileToPlay seed board = res
+                    where validTiles = trace ("Válidos: " ++ (show (length (filter (pertenceAoTipoCerto) tiles)))) $ filter (pertenceAoTipoCerto) tiles
                           pertenceAoTipoCerto t = (t_type t) `elem` restantes
                           restantes = (listOfTypesFromTuple . pecasRestantes) board
+                          --tilesComMeeples = if nextPlayerHasMeeples board then getTilesWithMeeples board validTiles else []
                           tilesComMeeples = if ((randomValue seed 1) == 1) && nextPlayerHasMeeples board then getTilesWithMeeples board validTiles else []
                           tiles = possibleNextTiles board
+                          --todos = tilesComMeeples
                           todos = validTiles ++ tilesComMeeples
+                          --debug = "" -- "########## restantes ##########" ++ show restantes ++ "############ todos ###########" ++ show todos
+                          res = (todos !! (randomValue seed ((length todos)-1)))
+                          --debug = ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\nEscolhido: " ++ show res
 
 -- | Jogar a primeira peça
 playFirstTile :: Int -> Board -> Tile
@@ -373,11 +375,8 @@ listOfTypesFromTuple (b,c,e,n) = lb ++ lc ++ le ++ ln
 
 -- | Verifica se o jogo terminou
 isGameOver :: Board -> Bool
-isGameOver b = 
-        case r of
-          (0,0,0,0) -> True
-          _ -> False
-        where r = pecasRestantes b
+isGameOver b = null tiles
+        where tiles = possibleNextTiles $ b_terrain b
 
 -- | Substitui a componente 'Next' de um 'Board'
 substituteNext :: Board -> Next -> Board
@@ -426,13 +425,13 @@ getZoneForMeeple b tile =
 -- | Obtém os 'Tile's de uma cidade começando no 'Tile' especificado
 getCityTiles :: Tile -> [Tile] -> [Tile]
 getCityTiles start l = aux l [start] []
-            where aux todos (this:porVer) vistos = this:(aux todos (porVer ++ filter (\x -> x `elem` vistos) (tilesToAddBasedOnMeepleType 'K' this todos)) (this:vistos))
+            where aux todos (this:porVer) vistos = this:(aux todos (porVer ++ filter (\x -> not $ x `elem` vistos) (tilesToAddBasedOnMeepleType 'K' this todos)) (this:vistos))
                   aux _ [] _ = []
 
 -- | Obtém os 'Tile's de um campo começando no 'Tile' especificado
 getFieldTiles :: Tile -> [Tile] -> [Tile]
 getFieldTiles start l = aux l [start] []
-              where aux todos (this:porVer) vistos = this:(aux todos (porVer ++ filter (\x -> x `elem` vistos) (tilesToAddBasedOnMeepleType 'F' this todos)) (this:vistos))
+              where aux todos (this:porVer) vistos = this:(aux todos (porVer ++ filter (\x -> not $ x `elem` vistos) (tilesToAddBasedOnMeepleType 'F' this todos)) (this:vistos))
                     aux _ [] _ = []
 
 -- | obtém os 'Tile's junto ao claustro e o 'Tile' do próprio claustro
@@ -442,3 +441,6 @@ getCloisterTiles start l = start:(map fromJust (filter isJust (map (getTileAtLoc
                         x = t_x start
                         y = t_y start
 
+-- | Acrescenta o 'Tile' ao 'Board'
+addTileToBoard :: Board -> Tile -> Board
+addTileToBoard b t = Board ( t:(b_terrain b)) (b_scores b) (b_next b)

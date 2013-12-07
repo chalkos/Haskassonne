@@ -1,3 +1,9 @@
+#ignore test results
+roundAntes.draw
+roundDepois.draw
+roundNext.xml
+roundPlay.xml
+
 #ignore tmp files
 *~
 

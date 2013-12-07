@@ -1,6 +1,6 @@
 .PHONY: clean draw next play dir_bin dir_doc dir_report all doc
 
-FLAGS ?= -O -isrc/ -o
+FLAGS ?= -fprof-auto -O -isrc/ -o
 
 all: draw next play
 
