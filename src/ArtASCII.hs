@@ -4,6 +4,7 @@ module ArtASCII where
 import Data.List.Utils
 import Leitor
 import Tabuleiro
+import Debug.Trace
 
 -- | Representa um tile em ArtASCII
 type Art = [String]
@@ -67,25 +68,25 @@ drawMeeple :: Art -> Maybe Meeple -> Art
 drawMeeple art Nothing = map (\x -> (replace "F" "." (replace "K" "*" (replace "M" "O" x)))) art
 drawMeeple art (Just (Meeple {m_player=player, m_type=name})) = drawMeeple (map (\x -> (replace (name:[]) (show player) x)) art) Nothing
 
--- dada uma posição orientada a norte e uma orientação, retorna a posição rodada
--- não é utilizada, por enquanto
+-- | Dada uma posição orientada a norte e uma orientação, retorna a posição rodada [não utilizada]
 coord :: Location -> Char -> Location
 coord (x,y) 'N' = ( x , y )
 coord (x,y) 'E' = (4-y, x )
 coord (x,y) 'S' = (4-x,4-y)
 coord (x,y) 'W' = ( y ,4-x)
 
--- data uma posição e uma orientação, retorna a posição correspondente numa peça orientada a norte
+-- | Dada uma posição e uma orientação, retorna a posição correspondente numa peça orientada a norte
 coordInv :: Location -> Char -> Location
 coordInv (x,y) 'N' = ( x , y )
 coordInv (x,y) 'E' = ( y ,4-x)
 coordInv (x,y) 'S' = (4-x,4-y)
 coordInv (x,y) 'W' = (4-y, x )
+coordInv (x,y) z = error ("coordInv got a orientation " ++ [z])
 
--- faz a rotação da peça
+-- | Faz a rotação de um 'Art'
 rotateArt :: Art -> Char -> Art
 rotateArt art rot = [ [ (getMatrixValue art (coordInv (x,y) rot)) | x <- [0..4] ] | y <- [0..4] ]
 
--- obtém o valor numa posição da matriz (zero-based)
+-- | Obtém o valor numa posição da matriz (zero-based)
 getMatrixValue :: [[a]] -> Location -> a
 getMatrixValue l (x,y) = ((l !! y) !! x)

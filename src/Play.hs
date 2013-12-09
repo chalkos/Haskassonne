@@ -6,24 +6,28 @@ import Leitor
 import Tabuleiro
 import Text.Show.Pretty
 import Escritor
+import System.Environment
+import Debug.Trace
 
 --main = do entrada <- getContents
 --    let Just elem = parseXMLDoc entrada
 --    putStrLn $ showElement (processa elem)
 main = do entrada <- getContents
+          args <- getArgs
           let Just elem = parseXMLDoc entrada
           seed <- randomRIO (0,1000)
-          putStrLn $ (processa seed elem)
+          putStrLn $ (processa args seed elem)
 
-processa :: Int -> Element -> String
---processa e = ppShow (possibleBordersOfTileAt 1 (-1) tiles)
---processa e = ppShow (possibleTilesAt (-2,0) tiles)
---processa e = ppShow (possibleNextTiles board)
---processa e = ppShow (validNextTiles board)
---processa e = ppShow (randomValidNextTile board)
-processa seed e = tile2xmlString tileToPlay
-         where 
-            --(tiles, players, proxima) = (b_terrain board, b_scores board, b_next board)
-            board = (processaBoard e)
-            hasNoTiles = null $ b_terrain board
-            tileToPlay = if hasNoTiles then playFirstTile seed board else randomValidTileToPlay seed board
+processa :: [String] -> Int -> Element -> String
+-- escreve o que é suposto para esta fase
+processa [] seed e = tile2xmlString tileToPlay
+           where 
+              board = (processaBoard e)
+              hasNoTiles = null $ b_terrain board
+              tileToPlay = if hasNoTiles then playFirstTile seed board else randomValidTileToPlay seed board
+-- caso tenha argumentos escreve um xml completo com a jogada escolhida
+processa _ seed e = ppElement (board2element $ addTileToBoard board tileToPlay)
+           where 
+              board = (processaBoard e)
+              hasNoTiles = null $ b_terrain board
+              tileToPlay = if hasNoTiles then playFirstTile seed board else randomValidTileToPlay seed board

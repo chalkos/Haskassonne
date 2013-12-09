@@ -18,6 +18,12 @@ Makefile
 * doc - gera a documentação
 * clean - apaga ficheiros temporários
 
+Jogar
+-----
+
+É possível jogar executando sucessivamente a script playRound.sh.
+Consultar a própria script para saber como funciona.
+
 Random Info
 ----
 
