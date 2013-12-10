@@ -1,75 +1,57 @@
 module Main where
 
-import Text.XML.Light
 import Test.QuickCheck
-import Data.List.Utils
-import System.IO
 
 import Leitor
 import ArtASCII
+import Tabuleiro
 
-main = do entrada <- getContents
-          let Just elem = parseXMLDoc entrada
-          putStrLn $ (processa elem)
-          
-          --contents <- readFile "test/001_test_result.xml"
-          --print . map readString . words $ contents
-          --alternately:
-          --print . map readString . words =<< readFile "test/001_test_result.xml"
-          --print =<< readFile "test/001_test_result.xml"
-          
-
-processa :: Element -> String
---processa e = ppShow (processaBoard e)
---processa e = ppShow (getLimits (processaBoard e))
-{-processa e = ppShow (buildMap (b_terrain board) (getLimits board))
-             where board = processaBoard e-}
---processa e = ppShow (rotateArt artTest 'N')
-processa e = drawMap (buildMap (b_terrain board) (getLimits board))
-             where board = processaBoard e
-
--- Testing related
 -- Properties must have monomorphic types. 
 -- Polymorphic properties, must be restricted to a particular type to be used for testing. 
 -- It is convenient to do so by stating the types of one or more arguments in a where types = (x1 :: t1, x2 :: t2, ...) clause.
+-- Teste de idempotencia (Que tem a propriedade de poder ser aplicado mais do que uma vez sem que o resultado se altere)
+
 prop_RevRev xs = reverse (reverse xs) == xs
   where types = xs::[Int]
 
---http://book.realworldhaskell.org/read/testing-and-quality-assurance.html
---http://stackoverflow.com/questions/16201741/using-quickcheck
---http://stackoverflow.com/questions/5208621/show-ing-functions-used-in-quickcheck-properties
-
 data IntWithLimitedRange = IntWithLimitedRange Int
+
+instance Eq IntWithLimitedRange where  
+    IntWithLimitedRange x == IntWithLimitedRange y = True
+    IntWithLimitedRange _ /= IntWithLimitedRange _ = False 
 
 instance Show IntWithLimitedRange where
   show (IntWithLimitedRange number) = show number
 
 instance Arbitrary IntWithLimitedRange where
   arbitrary = do
-    number <- choose (1, 2)
+    number <- choose (1, 5)
     return $ IntWithLimitedRange number
 
-prop_resultado_1 (xs) = boolFromIO (fazComparacao xs)
-                      where types = xs::IntWithLimitedRange
-
-boolFromIO :: IO Bool -> Bool
-boolFromIO = boolFromIO
-
-fazComparacao :: IntWithLimitedRange -> IO Bool 
-fazComparacao xs = do input <- readFile (nomeFicheiroTestesParaPathCorrecto xs)
-                      resultadoEsperado <- readFile (nomeFicheiroTestesResultadoParaPathCorrecto xs)
-                      let Just elem = parseXMLDoc input
-                      return (resultadoEsperado == (processa elem))
-
-nomeFicheiroTestesParaPathCorrecto :: IntWithLimitedRange -> String
-nomeFicheiroTestesParaPathCorrecto s = "test/" ++ show s ++ ".xml"
-
-nomeFicheiroTestesResultadoParaPathCorrecto :: IntWithLimitedRange -> String
-nomeFicheiroTestesResultadoParaPathCorrecto s = "test/" ++ show s ++ "_test_result.xml"
-
-
-
-
-
-
+-- | Testa se dada uma orientação qualquer, a funcao rotateArt retorna uma peça orientada a norte
+prop_rotateArt (x) = artAuxN == rotateArt artAuxN 'N' && 
+                     artAuxE == rotateArt artAuxE 'N' &&
+                     artAuxS == rotateArt artAuxS 'N' &&
+                     artAuxW == rotateArt artAuxW 'N'
+                     where artAuxN | x == (IntWithLimitedRange 1) = rotateArt artB 'N'
+                                   | x == (IntWithLimitedRange 2) = rotateArt artC 'N'
+                                   | x == (IntWithLimitedRange 3) = rotateArt artE 'N'
+                                   | x == (IntWithLimitedRange 4) = rotateArt artN 'N'
+                                   | x == (IntWithLimitedRange 5) = rotateArt artVoid 'N'
+                           artAuxE | x == (IntWithLimitedRange 1) = rotateArt artB 'E'
+                                   | x == (IntWithLimitedRange 2) = rotateArt artC 'E'
+                                   | x == (IntWithLimitedRange 3) = rotateArt artE 'E'
+                                   | x == (IntWithLimitedRange 4) = rotateArt artN 'E'
+                                   | x == (IntWithLimitedRange 5) = rotateArt artVoid 'E'
+                           artAuxS | x == (IntWithLimitedRange 1) = rotateArt artB 'S'
+                                   | x == (IntWithLimitedRange 2) = rotateArt artC 'S'
+                                   | x == (IntWithLimitedRange 3) = rotateArt artE 'S'
+                                   | x == (IntWithLimitedRange 4) = rotateArt artN 'S'
+                                   | x == (IntWithLimitedRange 5) = rotateArt artVoid 'S'
+                           artAuxW | x == (IntWithLimitedRange 1) = rotateArt artB 'W'
+                                   | x == (IntWithLimitedRange 2) = rotateArt artC 'W'
+                                   | x == (IntWithLimitedRange 3) = rotateArt artE 'W'
+                                   | x == (IntWithLimitedRange 4) = rotateArt artN 'W'
+                                   | x == (IntWithLimitedRange 5) = rotateArt artVoid 'W'
+                           types = x::IntWithLimitedRange
 
