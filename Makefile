@@ -18,6 +18,10 @@ clean: dir_report dir_doc dir_bin
 	$(RM) src/*.o
 	$(RM) src/*.hi
 	$(RM) bin/*
+	$(RM) roundAntes.draw
+	$(RM) roundDepois.draw
+	$(RM) roundNext.xml
+	$(RM) roundPlay.xml
 
 bin/draw: dir_bin
 	@echo "  (compilando Draw)"

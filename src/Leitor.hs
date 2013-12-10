@@ -127,6 +127,7 @@ processaScore ((Element {elName=(QName {qName="score"}), elAttribs=attr} ):t) =
 
 -- | Encontra a tag \<next> e processa os seus atributos num 'Next'.
 processaNext :: [Element] -> Next
+processaNext [] = Next 0 '-' --estes valores são inválidos e permitem apenas que o draw seja executado depois do jogo terminar
 processaNext ((Element {elName=(QName {qName="next"}), elAttribs=attr} ):_) =
         Next {n_player=(getAttrValueInt "player" attr), n_tile=(getAttrValueChar "tile" attr)}
 processaNext (_:t) = processaNext t
