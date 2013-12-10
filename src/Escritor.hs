@@ -60,9 +60,10 @@ tile2element t = Element (string2qname "tile") attribs meeple Nothing
               meeple = if isJust $ t_meeple t then elements2contents [meeple2element.fromJust.t_meeple $ t] else []
 
 -- | Converte um 'Board' num 'Element'
+-- | Se o 'TileType' do 'Next' for '-' então não deve ser escrito um Next
 board2element :: Board -> Element
 board2element b = Element (string2qname "board") [] children Nothing --WIP
-    where children = [terrain, scores, next]
+    where children = [terrain, scores] ++ next
           terrain = Elem (Element (string2qname "terrain") [] (elements2contents $ map tile2element (b_terrain b)) Nothing)
           scores = Elem (Element (string2qname "scores") [] (elements2contents $ map player2element (b_scores b)) Nothing)
-          next = Elem (next2element $ b_next b)
+          next = if (n_tile.b_next $ b) == '-' then [] else [Elem (next2element $ b_next b)]

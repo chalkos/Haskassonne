@@ -12,7 +12,11 @@ type ScoredTile = (Zone, Int)
 
 -- | Calcula as pontuações, inclusive dos Farmers, retira todos os meeples e atribui pontuações finais
 finalScore :: Board -> Board
-finalScore b = b
+finalScore b = (Board {b_terrain=tilesWithoutMeeples, b_scores=scoredPlayers, b_next=(b_next b)})
+            where players = b_scores b
+                  realScores = getRealScoresForZones $ map (\x->(getZoneForMeeple b x,0)) (getAllTilesWithMeeples b)
+                  scoredPlayers = scorePlayers realScores players
+                  tilesWithoutMeeples = removeMeeples realScores (b_terrain b)
 -- map (getZoneForMeeple b) (getAllTilesWithMeeples b) -- Obtém 'ScoredTile's que devem ser pontuados
 
 -- | Retira os meeples e atribui pontuações

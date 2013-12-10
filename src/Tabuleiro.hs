@@ -216,7 +216,7 @@ generateNextPlayer b = getNext (head players) players
                                 
 -- | Fornecendo uma seed entre 0 e 1000, produz um número entre 0 e o segundo argumento.
 randomValue :: Int -> Int -> Int
-randomValue seed maximo = seed `mod` (maximo+1) 
+randomValue seed maximo = trace (show maximo) (seed `mod` (maximo+1))
 
 -- | A partir do tabuleiro e da lista de 'Tile's que podem ser colocados, devolver uma lista de 'Tile's que podem ser colocados com e sem 'Meeples's
 getTilesWithMeeples :: Board -> [Tile] -> [Tile]
@@ -338,7 +338,7 @@ randomValidTileToPlay seed board = (validTiles !! (randomValue seed ((length val
 -- | Obter um tile aletório para jogar
 randomValidTileToPlay :: Int -> Board -> Tile
 randomValidTileToPlay seed board = res
-                    where validTiles = trace ("Válidos: " ++ (show (length (filter (pertenceAoTipoCerto) tiles)))) $ filter (pertenceAoTipoCerto) tiles
+                    where validTiles = filter (pertenceAoTipoCerto) tiles
                           pertenceAoTipoCerto t = (t_type t) `elem` restantes
                           restantes = (listOfTypesFromTuple . pecasRestantes) board
                           --tilesComMeeples = if nextPlayerHasMeeples board then getTilesWithMeeples board validTiles else []
@@ -375,8 +375,7 @@ listOfTypesFromTuple (b,c,e,n) = lb ++ lc ++ le ++ ln
 
 -- | Verifica se o jogo terminou
 isGameOver :: Board -> Bool
-isGameOver b = null tiles
-        where tiles = possibleNextTiles $ b_terrain b
+isGameOver b = trace ("restantes: " ++ (show.length.possibleNextTiles) b) $ (null.possibleNextTiles) b
 
 -- | Substitui a componente 'Next' de um 'Board'
 substituteNext :: Board -> Next -> Board
