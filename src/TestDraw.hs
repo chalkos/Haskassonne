@@ -6,6 +6,8 @@ import Leitor
 import ArtASCII
 import Tabuleiro
 
+import qualified Data.Set as Set
+
 -- Properties must have monomorphic types. 
 -- Polymorphic properties, must be restricted to a particular type to be used for testing. 
 -- It is convenient to do so by stating the types of one or more arguments in a where types = (x1 :: t1, x2 :: t2, ...) clause.
@@ -14,7 +16,9 @@ import Tabuleiro
 prop_RevRev xs = reverse (reverse xs) == xs
   where types = xs::[Int]
 
+-- | Declarar tipo IntWithLimitedRange para evitar declaracoes duplicadas (Int) ja definidas em Test.QuickCheck.Arbitrary
 data IntWithLimitedRange = IntWithLimitedRange Int
+--  deriving (Eq,Show)
 
 instance Eq IntWithLimitedRange where  
     IntWithLimitedRange x == IntWithLimitedRange y = True
@@ -22,11 +26,6 @@ instance Eq IntWithLimitedRange where
 
 instance Show IntWithLimitedRange where
   show (IntWithLimitedRange number) = show number
-
-instance Arbitrary IntWithLimitedRange where
-  arbitrary = do
-    number <- choose (1, 5)
-    return $ IntWithLimitedRange number
 
 -- | Testa se dada uma orientação qualquer, a funcao rotateArt retorna uma peça orientada a norte
 prop_rotateArt (x) = artAuxN == rotateArt artAuxN 'N' && 
@@ -55,3 +54,16 @@ prop_rotateArt (x) = artAuxN == rotateArt artAuxN 'N' &&
                                    | x == (IntWithLimitedRange 5) = rotateArt artVoid 'W'
                            types = x::IntWithLimitedRange
 
+-- | Testa se o metodo removeDuplicates removes mesmo elementos duplicados
+prop_removeDuplicates xs = dupBool (removeDuplicates xs)
+
+dup :: Ord a => [a] -> Maybe a
+dup xs = dup' xs Set.empty
+  where dup' [] _ = Nothing
+        dup' (x:xs) s = if Set.member x s 
+                           then Just x
+                           else dup' xs (Set.insert x s)
+
+dupBool :: (Ord a, Show a) => [a] -> Bool
+dupBool x = case dup x of Just x  -> False
+                          Nothing -> True
