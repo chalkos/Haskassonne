@@ -7,6 +7,7 @@ import Leitor
 import Pontuar
 import Escritor
 import Text.Show.Pretty
+import Debug.Trace
 
 main = do entrada <- getContents
           let Just elem = parseXMLDoc entrada
@@ -15,9 +16,9 @@ main = do entrada <- getContents
           putStrLn $ ppElement (processa seed elem)
 
 processa :: Int -> Element -> Element
-processa seed e = board2element newBoard
+processa seed e = trace ("tiles em jogo: " ++ show (length $ b_terrain b)) $ board2element newBoard
       where b = processaBoard e
-            newBoard = if isGameOver b then finalScore b else (substituteNext (updateScore b) (generateNext seed b))
+            newBoard = if isGameOver b then trace "FINAL SCORE" $ finalScore b else (substituteNext (updateScore b) (generateNext seed b))
 
 -- TODO:
 -- o isGameOver apenas dá True quando todas as peças foram jogadas.

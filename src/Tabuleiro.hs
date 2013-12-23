@@ -7,8 +7,8 @@ import Data.Maybe
 import Data.Char
 
 import Debug.Trace
---import Text.Show.Pretty
-import FakePrettyShow
+import Text.Show.Pretty
+--import FakePrettyShow
 
 -- | Representa uma zona do mapa: uma cidade, um campo ou um claustro, começando num determinado 'Tile'.
 -- | O 'Tile' inicial também deve estar na lista.
@@ -156,13 +156,22 @@ possibleTilesAt tiles (x,y) =
                  sides -> getTilesFromMaybeTiles (getTilesFromSides x y (removeDuplicates (removeAmbiguousSides sides)))
     (Just _) -> []
 
--- | A partir do 'Board' descobre todas as peças que podem ser colocadas, onde e em que posição (não verifica meeples)
+-- | A partir do 'Board' descobre todas as peças que podem ser colocadas, onde e em que posição (isto ignorando meeples e tendo em conta o número máximo de peças jogáveis de um determinado tipo)
 possibleNextTiles :: Board -> [Tile]
-possibleNextTiles b = concat (map (possibleTilesAt tiles) positions)
+possibleNextTiles b = trace ("PecasRestantes(B,C,E,N): " ++ show (pecasRestantes b)) filter (aindaPodemSerColocadasPecasDesteTipo.t_type) todos
   where limits = (getLimits b)
         tiles = b_terrain b
         (xmin,xmax,ymin,ymax) = ((l_Xmin limits)-1, (l_Xmax limits)+1, (l_Ymin limits)-1, (l_Ymax limits)+1)
         positions = concat [[(x,y) | x <- [xmin..xmax]] | y <- [ymax, (ymax-1)..ymin] ]
+        todos = concat (map (possibleTilesAt tiles) positions)
+        (rB,rC,rE,rN) = pecasRestantes b
+        aindaPodemSerColocadasPecasDesteTipo 'B' = rB > 0
+        aindaPodemSerColocadasPecasDesteTipo 'C' = rC > 0
+        aindaPodemSerColocadasPecasDesteTipo 'E' = rE > 0
+        aindaPodemSerColocadasPecasDesteTipo 'N' = rN > 0
+
+
+
 
 -- | Obter o tipo do próximo tile
 getNextTileType :: Board -> TileType
@@ -219,9 +228,9 @@ generateNextPlayer b = getNext (head players) players
                                 
 -- | Fornecendo uma seed entre 0 e 1000, produz um número entre 0 e o segundo argumento.
 randomValue :: Int -> Int -> Int
-randomValue seed maximo = trace (show maximo) (seed `mod` (maximo+1))
+randomValue seed maximo = trace ("maxRandom: " ++ show maximo) (seed `mod` (maximo+1))
 
--- | A partir do tabuleiro e da lista de 'Tile's que podem ser colocados, devolver uma lista de 'Tile's que podem ser colocados com e sem 'Meeples's
+-- | A partir do tabuleiro e da lista de 'Tile's que podem ser colocados, devolver uma lista de 'Tile's com 'Meeples's que podem ser colocados.
 getTilesWithMeeples :: Board -> [Tile] -> [Tile]
 getTilesWithMeeples board tiles = knights ++ farmers ++ monks
                             where knights = getTilesFromMaybeTiles (map (getTileWithKnight board owner) tiles)
@@ -338,18 +347,14 @@ randomValidTileToPlay seed board = (validTiles !! (randomValue seed ((length val
                           pertenceAoTipoCerto t = (t_type t) `elem` restantes
 -}
 
--- | Obter um tile aletório para jogar
+-- | Obter um tile aletório para jogar daqueles que podem ser 
 randomValidTileToPlay :: Int -> Board -> Tile
 randomValidTileToPlay seed board = res
-                    where validTiles = filter (pertenceAoTipoCerto) tiles
-                          pertenceAoTipoCerto t = (t_type t) `elem` restantes
-                          restantes = (listOfTypesFromTuple . pecasRestantes) board
-                          --tilesComMeeples = if nextPlayerHasMeeples board then getTilesWithMeeples board validTiles else []
-                          tilesComMeeples = if ((randomValue seed 1) == 1) && nextPlayerHasMeeples board then getTilesWithMeeples board validTiles else []
-                          tiles = possibleNextTiles board
-                          --todos = tilesComMeeples
-                          todos = validTiles ++ tilesComMeeples
-                          --debug = "" -- "########## restantes ##########" ++ show restantes ++ "############ todos ###########" ++ show todos
+                    where tiles = possibleNextTiles board
+                          tipoCerto = n_tile.b_next $ board
+                          validTiles = filter ((tipoCerto==).t_type) tiles
+                          validTilesComMeeples = if ((randomValue seed 1) == 1) && nextPlayerHasMeeples board then getTilesWithMeeples board validTiles else []
+                          todos = validTiles ++ validTilesComMeeples
                           res = (todos !! (randomValue seed ((length todos)-1)))
                           --debug = ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\nEscolhido: " ++ show res
 
@@ -378,7 +383,7 @@ listOfTypesFromTuple (b,c,e,n) = lb ++ lc ++ le ++ ln
 
 -- | Verifica se o jogo terminou
 isGameOver :: Board -> Bool
-isGameOver b = trace ("restantes: " ++ (ppShow.possibleNextTiles) b) $ (null.possibleNextTiles) b
+isGameOver b = trace ("Nr restantes possiveis: " ++ (show.length) (possibleNextTiles b)) $ (null.possibleNextTiles) b
 
 -- | Substitui a componente 'Next' de um 'Board'
 substituteNext :: Board -> Next -> Board
