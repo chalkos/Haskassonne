@@ -1,7 +1,6 @@
 -- | Contém funções relacionadas com o desenho dos caracteres no programa Draw
 module ArtASCII where
 
-import Data.List.Utils
 import Leitor
 import Tabuleiro
 import Debug.Trace
@@ -26,6 +25,12 @@ artVoid = ["     ","     ","     ","     ","     "] :: Art
 
 
 --artTest = ["ABCDE", "FGHIJ", "KLMNO", "PQRST", "UVWXY"] :: Art
+
+-- | substitui todas as ocorrencias de um elemento numa lista por um outro elemento
+replace :: Eq a => a -> a -> [a] -> [a]
+replace _ _ [] = []
+replace encontra substitui (x:xs) | x == encontra = substitui:(replace encontra substitui xs)
+                                  | otherwise = x:(replace encontra substitui xs)
 
 -- | Organiza uma matriz de Maybe Tile
 buildMap :: [Tile] -> Limits -> Map
@@ -65,8 +70,8 @@ tile2Art (Just (Tile {t_type=nome, t_orientation=rot, t_meeple=meeple})) = rotat
 
 -- modifica o desenho conforme o Meeple que lá estiver colocado
 drawMeeple :: Art -> Maybe Meeple -> Art
-drawMeeple art Nothing = map (\x -> (replace "F" "." (replace "K" "*" (replace "M" "O" x)))) art
-drawMeeple art (Just (Meeple {m_player=player, m_type=name})) = drawMeeple (map (\x -> (replace (name:[]) (show player) x)) art) Nothing
+drawMeeple art Nothing = map (\x -> (replace 'F' '.' (replace 'K' '*' (replace 'M' 'O' x)))) art
+drawMeeple art (Just (Meeple {m_player=player, m_type=name})) = drawMeeple (map (replace name (head.show $ player)) art) Nothing
 
 -- | Dada uma posição orientada a norte e uma orientação, retorna a posição rodada [não utilizada]
 coord :: Location -> Char -> Location

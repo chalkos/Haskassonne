@@ -1,7 +1,6 @@
 module Main where
 
 import Text.XML.Light
-import Data.List.Utils
 
 import Leitor
 import ArtASCII
@@ -9,7 +8,7 @@ import Tabuleiro
 
 main = do entrada <- getContents
           let Just elem = parseXMLDoc entrada
-          putStrLn $ (processa elem)
+          putStr $ processa elem
 
 processa :: Element -> String
 --processa e = ppShow (processaBoard e)

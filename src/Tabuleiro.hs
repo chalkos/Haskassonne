@@ -7,6 +7,8 @@ import Data.Maybe
 import Data.Char
 
 import Debug.Trace
+--import Text.Show.Pretty
+import FakePrettyShow
 
 -- | Representa uma zona do mapa: uma cidade, um campo ou um claustro, começando num determinado 'Tile'.
 -- | O 'Tile' inicial também deve estar na lista.
@@ -30,6 +32,7 @@ nPecasT = nPecasB + nPecasC + nPecasE + nPecasN :: Int
 -- | Representa a lateral de uma peça
 data Side = SideField | SideCity | SideBoth
     deriving (Eq, Show)
+
 -- | Representa as quatro laterais de uma peça
 type Sides = (Side, Side, Side, Side)
 
@@ -375,7 +378,7 @@ listOfTypesFromTuple (b,c,e,n) = lb ++ lc ++ le ++ ln
 
 -- | Verifica se o jogo terminou
 isGameOver :: Board -> Bool
-isGameOver b = trace ("restantes: " ++ (show.length.possibleNextTiles) b) $ (null.possibleNextTiles) b
+isGameOver b = trace ("restantes: " ++ (ppShow.possibleNextTiles) b) $ (null.possibleNextTiles) b
 
 -- | Substitui a componente 'Next' de um 'Board'
 substituteNext :: Board -> Next -> Board

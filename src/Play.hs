@@ -21,15 +21,14 @@ main = do entrada <- getContents
 processa :: [String] -> Int -> Element -> String
 -- escreve o que é suposto para esta fase
 processa [] seed e = tile2xmlString tileToPlay
-           where 
-              board = (processaBoard e)
-              hasNoTiles = null $ b_terrain board
-              tileToPlay = if hasNoTiles then playFirstTile seed board else randomValidTileToPlay seed board
+           where board = (processaBoard e)
+                 hasNoTiles = null $ b_terrain board
+                 tileToPlay = if hasNoTiles then playFirstTile seed board else randomValidTileToPlay seed board
 -- caso tenha argumentos escreve um xml completo com a jogada escolhida
 processa _ seed e = ppElement (board2element $ addTileToBoard board tileToPlay)
-           where 
-              board = (processaBoard e)
-              tileToPlay = if hasNoTiles then playFirstTile seed board else randomValidTileToPlay seed board
+           where board = (processaBoard e)
+                 hasNoTiles = null $ b_terrain board
+                 tileToPlay = if hasNoTiles then playFirstTile seed board else randomValidTileToPlay seed board
 
 
 

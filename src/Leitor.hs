@@ -4,7 +4,8 @@ module Leitor where
 import Data.Char
 import Text.XML.Light
 import Text.XML.Light.Types
-import Text.Show.Pretty
+--import Text.Show.Pretty
+import FakePrettyShow
 
 -- | Um jogador. O jogador é identificado por um valor inteiro e tem uma pontuação.
 data Player = Player {
