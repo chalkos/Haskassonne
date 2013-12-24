@@ -14,10 +14,11 @@ type ScoredTile = (Zone, Int)
 
 scoredTiles2String :: [ScoredTile] -> String
 scoredTiles2String l = unlines $ map mostrar l
-        where inicial (City x _) = x
-              inicial (Field x _) = x
-              inicial (Cloister x _) = x
-              mostrar (zona, p) = show p ++ " pontos para o tile: " ++ show (inicial zona)
+        where inicial (City x l) = (show x):(map show l)
+              inicial (Field x l) = (show x):(map show l)
+              inicial (Cloister x l) = (show x):(map show l)
+              mostrar (zona, p) = show p ++ " pontos para o tile: " ++ unlines (inicial zona)
+
 
 -- | Calcula as pontuações, inclusive dos Farmers, retira todos os meeples e atribui pontuações finais
 finalScore :: Board -> Board

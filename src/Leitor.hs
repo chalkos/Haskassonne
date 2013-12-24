@@ -15,7 +15,6 @@ data Player = Player {
 
 -- | Informações sobre a pŕoxima jogada, nomeadamente o jogador que se segue e a peça que este deve colocar.
 data Next = Next {
-    n_player :: Int,
     n_tile :: TileType
 } deriving (Show)
 
@@ -128,8 +127,8 @@ processaScore ((Element {elName=(QName {qName="score"}), elAttribs=attr} ):t) =
 
 -- | Encontra a tag \<next> e processa os seus atributos num 'Next'.
 processaNext :: [Element] -> Next
-processaNext [] = Next 0 '-' --estes valores são inválidos e permitem apenas que o draw seja executado depois do jogo terminar
+processaNext [] = Next '-' --estes valores são inválidos e permitem apenas que o draw seja executado depois do jogo terminar
 processaNext ((Element {elName=(QName {qName="next"}), elAttribs=attr} ):_) =
-        Next {n_player=(getAttrValueInt "player" attr), n_tile=(getAttrValueChar "tile" attr)}
+        Next {n_tile=(getAttrValueChar "tile" attr)}
 processaNext (_:t) = processaNext t
 

@@ -38,8 +38,7 @@ player2element p = Element (string2qname "score") attribs [] Nothing
 -- | Converte um 'Next' num 'Element'
 next2element :: Next -> Element
 next2element n = Element (string2qname "next") attribs [] Nothing
-        where attribs = [player,tile]
-              player = Attr (string2qname "player") (show $ n_player n)
+        where attribs = [tile]
               tile = Attr (string2qname "tile") [n_tile n]
 
 -- | Converte um 'Meeple' num 'Element'

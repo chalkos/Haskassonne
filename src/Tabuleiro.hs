@@ -177,12 +177,12 @@ possibleNextTiles b = trace ("PecasRestantes(B,C,E,N): " ++ show (pecasRestantes
 getNextTileType :: Board -> TileType
 getNextTileType (Board {b_next=proximaJogada}) = n_tile proximaJogada
 
--- | Obter o próximo jogador
+-- | Obter o próximo jogador (aquele que deve jogar nesta fase play)
 getNextPlayer :: Board -> Player
-getNextPlayer (Board {b_next=proximaJogada, b_scores=players}) = 
-  case find ((proxJogador==).s_player) players of
-    Just match -> match
-  where proxJogador = n_player proximaJogada
+getNextPlayer (Board tiles players _) = players !! proxJogadorIndx
+              where proxJogadorIndx = mod nTiles nJogadores
+                    nJogadores = length players
+                    nTiles = length tiles
 
 -- | Verifica se o próximo jogador tem meeples por jogar
 nextPlayerHasMeeples :: Board -> Bool
@@ -191,7 +191,7 @@ nextPlayerHasMeeples board = (meeplesPlacedByNextPlayer board) <= 7
 -- | Verifica quantos meeples o próximo jogador tem em jogo
 meeplesPlacedByNextPlayer :: Board -> Int
 meeplesPlacedByNextPlayer board = length (filter ((nPlayer==).m_player) (map (fromJust) (filter (isJust) (map (t_meeple) (b_terrain board)))))
-                                  where nPlayer = n_player (b_next board)
+                                  where nPlayer = s_player (getNextPlayer board)
 
 -- verificar a peça seguinte e filtrar as possiveis
 -- verificar se o jogador pode usar meeples
@@ -214,16 +214,8 @@ validNextTiles board = validTiles
 
 -- | Gera um elemento 'Next' para a próxima jogada
 generateNext :: Int -> Board -> Next
-generateNext seed board = Next (generateNextPlayer board) (t_type (todos !! (randomValue seed ((length todos)-1))))
+generateNext seed board = Next (t_type (todos !! (randomValue seed ((length todos)-1))))
             where todos = possibleNextTiles board
-
--- | Determina o número do próximo jogador
-generateNextPlayer :: Board -> Int
-generateNextPlayer b = getNext (head players) players
-            where players = map s_player (b_scores b)
-                  actual = n_player $ b_next b
-                  getNext l (x:y:n) = if x==actual then y else getNext l (y:n)
-                  getNext l (x:[]) = if x==actual then l else error "não conseguiu determinar o proximo jogador"
 
                                 
 -- | Fornecendo uma seed entre 0 e 1000, produz um número entre 0 e o segundo argumento.
@@ -361,7 +353,7 @@ randomValidTileToPlay seed board = res
 -- | Jogar a primeira peça
 playFirstTile :: Int -> Board -> Tile
 playFirstTile seed board = Tile 'E' 0 0 theOrientation theMeeple
-              where firstPlayer = n_player $ b_next board
+              where firstPlayer = s_player (getNextPlayer board)
                     theMeeple = case (randomValue seed 9) of
                                     0 -> Nothing -- com 10% de prob
                                     1 -> Just (Meeple firstPlayer 'F') -- com 10% de prob
