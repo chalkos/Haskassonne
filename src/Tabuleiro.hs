@@ -280,7 +280,7 @@ searchMeeple meeple todos (this:porVer) vistos =
     if isJust (t_meeple this) && (m_type $ fromJust (t_meeple this)) == meeple
     then False -- encontrou um meeple, não se pode colocar nenhum meeple no tile original
     else searchMeeple meeple todos (porVer ++ novos) (this:vistos)
-    where novos = filter (\x -> not $ x `elem` vistos) (tilesToAddBasedOnMeepleType meeple this todos)
+    where novos = filter (\x -> not $ x `elem` (this:vistos++porVer)) (tilesToAddBasedOnMeepleType meeple this todos)
 
 -- | Encontrar os tiles adjacentes que podem ter meeples do mesmo tipo
 tilesToAddBasedOnMeepleType :: Char -> Tile -> [Tile] -> [Tile]
@@ -309,7 +309,7 @@ isCityComplete todos (this:porVer) vistos =
     -- este tile tem uma lateral de cidade que não tem tile à volta
     if not $ null (filter (isNothing) (map (getTileAtLocation todos) (getFollowingTilesPositions this SideCity (getSidesFromTile this))))
     then False
-    else isCityComplete todos (porVer ++ filter (\x -> not $ x `elem` vistos) (tilesToAddBasedOnMeepleType 'K' this todos)) (this:vistos)
+    else isCityComplete todos (porVer ++ filter (\x -> not $ x `elem` (this:vistos++porVer)) (tilesToAddBasedOnMeepleType 'K' this todos)) (this:vistos)
 
 --------------------------------------------
 --------------------------------------------
@@ -424,14 +424,16 @@ getZoneForMeeple b tile =
 -- | Obtém os 'Tile's de uma cidade começando no 'Tile' especificado
 getCityTiles :: Tile -> [Tile] -> [Tile]
 getCityTiles start l = aux l [start] []
-            where aux todos (this:porVer) vistos = this:(aux todos (porVer ++ filter (\x -> not $ x `elem` vistos) (tilesToAddBasedOnMeepleType 'K' this todos)) (this:vistos))
-                  aux _ [] _ = []
+            where aux todos (this:porVer) vistos = (aux todos (porVer ++ filter (\x -> not $ x `elem` verificados) (tilesToAddBasedOnMeepleType 'K' this todos)) (this:vistos))
+                      where verificados = this:vistos++porVer
+                  aux _ [] vistos = vistos
 
 -- | Obtém os 'Tile's de um campo começando no 'Tile' especificado
 getFieldTiles :: Tile -> [Tile] -> [Tile]
 getFieldTiles start l = aux l [start] []
-              where aux todos (this:porVer) vistos = this:(aux todos (porVer ++ filter (\x -> not $ x `elem` vistos) (tilesToAddBasedOnMeepleType 'F' this todos)) (this:vistos))
-                    aux _ [] _ = []
+            where aux todos (this:porVer) vistos = (aux todos (porVer ++ filter (\x -> not $ x `elem` verificados) (tilesToAddBasedOnMeepleType 'F' this todos)) (this:vistos))
+                      where verificados = this:vistos++porVer
+                  aux _ [] vistos = vistos
 
 -- | obtém os 'Tile's junto ao claustro e o 'Tile' do próprio claustro
 getCloisterTiles :: Tile -> [Tile] -> [Tile]

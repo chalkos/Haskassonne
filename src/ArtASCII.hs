@@ -24,7 +24,7 @@ artN = ["*****", "*K**.", "***..", "**.F.", "*...."] :: Art
 artVoid = ["     ","     ","     ","     ","     "] :: Art
 
 
---artTest = ["ABCDE", "FGHIJ", "KLMNO", "PQRST", "UVWXY"] :: Art
+-- artTest = ["ABCDE", "FGHIJ", "KLMNO", "PQRST", "UVWXY"] :: Art
 
 -- | substitui todas as ocorrencias de um elemento numa lista por um outro elemento
 replace :: Eq a => a -> a -> [a] -> [a]
@@ -58,7 +58,7 @@ artTiles2String (h1:t1) = (concat (getAllHeads h1)) ++ "\n" ++ (artTiles2String 
                             getAllTails [] = []
                             getAllTails ((a:b):c) = [b] ++ (getAllTails c)
 
--- dado um tile, retorna o artASCII correspondente
+-- | dado um tile, retorna o artASCII correspondente
 tile2Art :: Maybe Tile -> Art
 tile2Art Nothing = artVoid
 tile2Art (Just (Tile {t_type=nome, t_orientation=rot, t_meeple=meeple})) = rotateArt (drawMeeple art meeple) rot
@@ -68,7 +68,7 @@ tile2Art (Just (Tile {t_type=nome, t_orientation=rot, t_meeple=meeple})) = rotat
             | nome == 'E' = artE
             | nome == 'N' = artN
 
--- modifica o desenho conforme o Meeple que lá estiver colocado
+-- | modifica o desenho conforme o Meeple que lá estiver colocado
 drawMeeple :: Art -> Maybe Meeple -> Art
 drawMeeple art Nothing = map (\x -> (replace 'F' '.' (replace 'K' '*' (replace 'M' 'O' x)))) art
 drawMeeple art (Just (Meeple {m_player=player, m_type=name})) = drawMeeple (map (replace name (head.show $ player)) art) Nothing

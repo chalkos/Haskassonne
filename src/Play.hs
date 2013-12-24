@@ -25,7 +25,7 @@ processa [] seed e = tile2xmlString tileToPlay
                  hasNoTiles = null $ b_terrain board
                  tileToPlay = if hasNoTiles then playFirstTile seed board else randomValidTileToPlay seed board
 -- caso tenha argumentos escreve um xml completo com a jogada escolhida
-processa _ seed e = ppElement (board2element $ addTileToBoard board tileToPlay)
+processa _ seed e = ppElement $ if existeNext e then (board2element $ addTileToBoard board tileToPlay) else board2element.processaBoard $ e -- se a tag next nao existir, o jogo ja acabou e as pontuacoes ja foram calculadas
            where board = (processaBoard e)
                  hasNoTiles = null $ b_terrain board
                  tileToPlay = if hasNoTiles then playFirstTile seed board else randomValidTileToPlay seed board

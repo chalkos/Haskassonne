@@ -132,3 +132,11 @@ processaNext ((Element {elName=(QName {qName="next"}), elAttribs=attr} ):_) =
         Next {n_tile=(getAttrValueChar "tile" attr)}
 processaNext (_:t) = processaNext t
 
+-- | Verifica se existe a tag \<next>
+existeNext :: Element -> Bool
+existeNext (Element {elName=(QName {qName="board"}), elContent=children} ) =
+  hasNext (getElemsFromContent children)
+    where hasNext [] = False --estes valores são inválidos e permitem apenas que o draw seja executado depois do jogo terminar
+          hasNext ((Element {elName=(QName {qName="next"}), elAttribs=attr} ):_) = True
+          hasNext (_:t) = hasNext t
+

@@ -16,7 +16,7 @@ main = do entrada <- getContents
           putStrLn $ ppElement (processa seed elem)
 
 processa :: Int -> Element -> Element
-processa seed e = board2element newBoard
+processa seed e = if existeNext e then board2element newBoard else board2element.processaBoard $ e -- se a tag next nao existir, o jogo ja acabou e as pontuacoes ja foram calculadas
       where b = processaBoard e
             newBoard = if isGameOver b then finalScore b else (substituteNext (updateScore b) (generateNext seed b))
 
