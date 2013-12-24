@@ -7,12 +7,21 @@ import Leitor
 import Data.Maybe
 import Data.List
 
+import Debug.Trace
+
 -- | Representa uma 'Zone' e a sua pontuação
 type ScoredTile = (Zone, Int)
 
+scoredTiles2String :: [ScoredTile] -> String
+scoredTiles2String l = unlines $ map mostrar l
+        where inicial (City x _) = x
+              inicial (Field x _) = x
+              inicial (Cloister x _) = x
+              mostrar (zona, p) = show p ++ " pontos para o tile: " ++ show (inicial zona)
+
 -- | Calcula as pontuações, inclusive dos Farmers, retira todos os meeples e atribui pontuações finais
 finalScore :: Board -> Board
-finalScore b = (Board {b_terrain=tilesWithoutMeeples, b_scores=scoredPlayers, b_next=(b_next b)})
+finalScore b = trace (scoredTiles2String realScores) (Board {b_terrain=tilesWithoutMeeples, b_scores=scoredPlayers, b_next=(b_next b)})
             where players = b_scores b
                   realScores = getRealScoresForZones $ map (\x->(getZoneForMeeple b x,0)) (getAllTilesWithMeeples b)
                   scoredPlayers = scorePlayers realScores players

@@ -33,7 +33,7 @@ player2element :: Player -> Element
 player2element p = Element (string2qname "score") attribs [] Nothing
         where attribs = [player,score]
               player = Attr (string2qname "player") (show $ s_player p)
-              score = Attr (string2qname "score") (show $ s_player p)
+              score = Attr (string2qname "score") (show $ s_score p)
 
 -- | Converte um 'Next' num 'Element'
 next2element :: Next -> Element
