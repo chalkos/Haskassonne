@@ -6,14 +6,15 @@ import Tabuleiro
 import Leitor
 import Pontuar
 import Escritor
+import System.Environment
 import Text.Show.Pretty
 import Debug.Trace
 
 main = do entrada <- getContents
           let Just elem = parseXMLDoc entrada
           seed <- randomRIO (0,1000)
-          --putStrLn $ showElement (processa seed elem) -- isto é o que é pedido.
-          putStrLn $ ppElement (processa seed elem)
+          args <- getArgs
+          putStrLn $ (if null args then showElement else ppElement) (processa seed elem)
 
 processa :: Int -> Element -> Element
 processa seed e = if existeNext e then board2element newBoard else board2element.processaBoard $ e -- se a tag next nao existir, o jogo ja acabou e as pontuacoes ja foram calculadas

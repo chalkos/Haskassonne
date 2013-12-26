@@ -43,4 +43,4 @@ play: bin/play
 
 doc: dir_doc
 	@echo "  (gerando documentacao)"
-	cd src; haddock -h -o ../doc/ ArtASCII.hs Escritor.hs Leitor.hs Pontuar.hs Tabuleiro.hs
+	cd src; haddock -h -o ../doc/ ArtASCII.hs Escritor.hs Leitor.hs Pontuar.hs Tabuleiro.hs FakePrettyShow.hs

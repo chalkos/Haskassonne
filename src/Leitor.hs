@@ -13,14 +13,16 @@ data Player = Player {
     s_score :: Int
 } deriving (Show)
 
--- | Informações sobre a pŕoxima jogada, nomeadamente o jogador que se segue e a peça que este deve colocar.
+-- | Informações sobre a pŕoxima jogada, nomeadamente próxima peça a ser jogada.
 data Next = Next {
     n_tile :: TileType
 } deriving (Show)
 
 -- | Um Meeple, com informação sobre o seu dono e tipo. O tipo do Meeple (F - Farmer, K - Knight ou M - Monk) define o sítio onde este está colocado num 'Tile'.
 data Meeple = Meeple {
+    -- | A identificação do jogador
     m_player :: Int,
+    -- | O tipo do meeple
     m_type :: Char
 } deriving (Eq, Show)
 
