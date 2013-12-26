@@ -26,8 +26,8 @@
 \usepackage{graphicx}
 \graphicspath{{./imagens/}}
 
-\usepackage{caption}
-\usepackage{subcaption}
+\usepackage[labelformat=empty]{caption}
+\usepackage[labelformat=empty]{subcaption}
 
 % para ter a informação de quantas páginas tem o documento
 \usepackage{lastpage}
@@ -47,17 +47,18 @@
 % definir comandos especiais
 \newcommand\doubleplus{+\kern-1.3ex+\kern0.8ex} %
 
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% inicio do documento
 \begin{document}
-\title{Haskassone}
+\title{Haskassonne}
 \date{\today}
 \author{
   Bruno Alexandre Alves Ferreira\\
   \texttt{a61055@alunos.uminho.pt}
   \and
-  Nuno Salvador\\
-  \texttt{a?????@alunos.uminho.pt}
+  Nuno Miguel Oliveira Salvador\\
+  \texttt{a48398@alunos.uminho.pt}
   \and
   Grupo 007
 }
@@ -399,7 +400,7 @@ A nossa implementação do programa Next tem uma funcionalidade extra: quando lh
 Colocar um '-' no \emph{Next} do \emph{Board} faz com que o módulo \emph{Escrever} o ignore, resultando num formato XML sem a tag next.
 
 \newpage
-\subsection{Algoritmos das zonas}
+\subsection[Zones]{\emph{Zones}}
 Quando precisamos de calcular uma \emph{Zone} (cidade ou campo) fazemos uma pesquisa breadth-first que começa no \emph{Tile} que tem o \emph{meeple} e percorre todos os \emph{tiles} adjacentes que tenham laterais concordantes.
 
 A \emph{Zone} de um claustro são os 8 tiles adjacentes ao claustro e o próprio claustro.
@@ -454,13 +455,13 @@ O verdadeiro potencial desta script é realizado quando ela é executada várias
 \centering
 \begin{subfigure}{.5\textwidth}
   \centering
-  \includegraphics[width=0.8\linewidth]{tileB}
+  \includegraphics[width=0.8\linewidth]{brunoferreira}
   \caption{Bruno Ferreira (a61055)}
 \end{subfigure}%
 \begin{subfigure}{.5\textwidth}
   \centering
-  \includegraphics[width=0.8\linewidth]{tileC}
-  \caption{Nuno Salvador (a?????}
+  \includegraphics[width=0.8\linewidth]{nunosalvador}
+  \caption{Nuno Salvador (a48398)}
 \end{subfigure}%
 \end{figure}
 
