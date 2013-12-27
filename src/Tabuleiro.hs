@@ -346,11 +346,18 @@ randomValidTileToPlay :: Int -> Board -> Tile
 randomValidTileToPlay seed board = res
                     where tiles = possibleNextTiles board
                           tipoCerto = n_tile.b_next $ board
-                          validTiles = filter ((tipoCerto==).t_type) tiles
+                          validTiles = tilesMaisInteriores $ filter ((tipoCerto==).t_type) tiles
                           validTilesComMeeples = if ((randomValue seed 1) == 1) && nextPlayerHasMeeples board then getTilesWithMeeples board validTiles else []
                           todos = validTiles ++ validTilesComMeeples
                           res = (todos !! (randomValue seed ((length todos)-1)))
                           --debug = ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\nEscolhido: " ++ show res
+
+-- | Obter os tiles que estão na zona mais interior do tabuleiro
+tilesMaisInteriores :: [Tile] -> [Tile]
+tilesMaisInteriores tiles = filter (\t -> menorDistancia>=(distancia t)) tiles
+      where distancia (Tile _ x y _ _) = sqrt $ (((fromIntegral x)**2) + ((fromIntegral y)**2))
+            menorDistancia = minimum $ map (distancia) tiles
+
 
 -- | Jogar a primeira peça
 playFirstTile :: Int -> Board -> Tile
