@@ -1,0 +1,22 @@
+<!-- verifica se o monk é pontuado -->
+<?xml version="1.0"?> 
+<board>
+   <terrain>
+      <tile type="E" x="-1" y="1" orientation="N"/>
+      <tile type="E" x="0" y="1" orientation="N"/>
+      <tile type="E" x="1" y="1" orientation="N"/>
+      <tile type="E" x="-1" y="0" orientation="W"/>
+      <tile type="E" x="1" y="0" orientation="E"/>
+      <tile type="E" x="-1" y="-1" orientation="S"/>
+      <tile type="E" x="0" y="-1" orientation="S"/>
+      <tile type="E" x="1" y="-1" orientation="S"/>
+      <tile type="B" x="0" y="0" orientation="N">
+            <follower player="1" type="M"/> 
+      </tile>
+  </terrain>
+  <scores>
+      <score player="1" score="0"/>
+      <score player="2" score="0"/>
+  </scores>
+  <next player="2" tile="E"/>
+</board>
