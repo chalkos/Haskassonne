@@ -7,10 +7,15 @@ import Leitor
 import Data.Maybe
 import Data.List
 
-import Debug.Trace
 
 -- | Representa uma 'Zone' e a sua pontuação
 type ScoredTile = (Zone, Int)
+
+-- | Obtém o 'Tile' inicial de uma 'Zone'
+getFirstTile :: Zone -> Tile
+getFirstTile (City x _) = x
+getFirstTile (Field x _) = x
+getFirstTile (Cloister x _) = x
 
 -- | Converte uma lista de 'ScoredTile' para uma String legível
 scoredTiles2String :: [ScoredTile] -> String
@@ -42,7 +47,7 @@ updateScore b = (Board {b_terrain=tilesWithoutMeeples, b_scores=scoredPlayers, b
 -- | Alterar os scores dos jogadores
 scorePlayers :: [ScoredTile] -> [Player] -> [Player]
 scorePlayers _ [] = []
-scorePlayers scores (p:ps) = (Player {s_player=(s_player p), s_score=(s_player p)+playerScore}):(scorePlayers scores ps)
+scorePlayers scores (p:ps) = (Player {s_player=(s_player p), s_score=(s_score p)+playerScore}):(scorePlayers scores ps)
               where belongsToPlayer st = ((m_player.fromJust.t_meeple.getFirstTile.fst) st)==(s_player p)
                     playerScore = sum $ map snd (filter (belongsToPlayer) scores)
 

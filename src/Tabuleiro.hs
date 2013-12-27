@@ -6,9 +6,11 @@ import Data.List
 import Data.Maybe
 import Data.Char
 
-import Debug.Trace
-import Text.Show.Pretty
+
+import FakePrettyShow
 --import FakePrettyShow
+
+import Debug.Trace
 
 -- | Representa uma zona do mapa: uma cidade, um campo ou um claustro, começando num determinado 'Tile'.
 -- | O 'Tile' inicial também deve estar na lista.
@@ -387,12 +389,6 @@ substituteNext b n = Board { b_terrain = b_terrain b
 getAllTilesWithMeeples :: Board -> [Tile]
 getAllTilesWithMeeples b = filter (hasMeeple) (b_terrain b)
                         where hasMeeple tile = isJust $ t_meeple tile
-
--- | Obtém o 'Tile' inicial de uma 'Zone'
-getFirstTile :: Zone -> Tile
-getFirstTile (City x _) = x
-getFirstTile (Field x _) = x
-getFirstTile (Cloister x _) = x
 
 -- | Verifica se duas 'Zone's se referem à mesma região
 isSameZone :: Zone -> Zone -> Bool

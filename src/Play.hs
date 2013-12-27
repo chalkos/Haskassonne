@@ -4,10 +4,10 @@ import Text.XML.Light
 import System.Random
 import Leitor
 import Tabuleiro
-import Text.Show.Pretty
+import FakePrettyShow
 import Escritor
 import System.Environment
-import Debug.Trace
+-- import Debug.Trace
 
 --main = do entrada <- getContents
 --    let Just elem = parseXMLDoc entrada

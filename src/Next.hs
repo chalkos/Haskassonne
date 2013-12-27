@@ -7,17 +7,17 @@ import Leitor
 import Pontuar
 import Escritor
 import System.Environment
-import Text.Show.Pretty
-import Debug.Trace
+-- import FakePrettyShow
+import FakePrettyShow
 
 main = do entrada <- getContents
           let Just elem = parseXMLDoc entrada
           seed <- randomRIO (0,1000)
           args <- getArgs
-          putStrLn $ (if null args then showElement else ppElement) (processa seed elem)
+          putStrLn $ (if not $ null args then showElement else ppElement) (processa seed elem)
 
 processa :: Int -> Element -> Element
-processa seed e = if existeNext e then board2element newBoard else board2element.processaBoard $ e -- se a tag next nao existir, o jogo ja acabou e as pontuacoes ja foram calculadas
+processa seed e = if not $ existeNext e then board2element newBoard else board2element.processaBoard $ e -- se a tag next nao existir, o jogo ja acabou e as pontuacoes ja foram calculadas
       where b = processaBoard e
             newBoard = if isGameOver b then finalScore b else (substituteNext (updateScore b) (generateNext seed b))
 
