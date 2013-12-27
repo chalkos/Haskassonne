@@ -15,6 +15,7 @@ import Debug.Trace
 -- | Representa uma zona do mapa: uma cidade, um campo ou um claustro, começando num determinado 'Tile'.
 -- | O 'Tile' inicial também deve estar na lista.
 data Zone = City Tile [Tile] | Field Tile [Tile] | Cloister Tile [Tile]
+      deriving(Show)
 
 -- | Números de peças do tipo B que podem ser jogadas
 nPecasB = 6 :: Int

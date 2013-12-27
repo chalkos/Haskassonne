@@ -7,6 +7,7 @@ import Leitor
 import Data.Maybe
 import Data.List
 
+import Debug.Trace
 
 -- | Representa uma 'Zone' e a sua pontuação
 type ScoredTile = (Zone, Int)
@@ -105,6 +106,18 @@ getRealScoresForZones zones = concat $ zipWith (scoreAZone) groupedZones players
                             scoreAZone ((x,_):xs) pls = (x,score):(scoreAZone xs pls)
                                   where shouldScore = elem ((m_player.fromJust.t_meeple.getFirstTile) x) pls
                                         score = if shouldScore then scoreZone x else 0
+
+-- este não dá pontuação em duplicado mas dá menos 2 respostas certas no mooshak, nao sei porquê
+{-getRealScoresForZones zones = concat $ zipWith (scoreAZone) groupedZones playersToBeScored
+                      where groupedZones = joinScoredTilesByZone zones [] -- [[ScoredTile]]
+                            playersToBeScored = map (playersToScore) groupedZones -- [[Int]]
+                            scoreAZone :: [ScoredTile] -> [Int] -> [ScoredTile]
+                            scoreAZone [] _ = []
+                            scoreAZone ((x,_):xs) pls = (x,score):(scoreAZone xs newpls)
+                                  where shouldScore = elem ownerOfThisZone pls
+                                        score = if shouldScore then scoreZone x else 0
+                                        newpls = filter (ownerOfThisZone/=) pls
+                                        ownerOfThisZone = m_player.fromJust.t_meeple.getFirstTile $ x-}
 
 -- | Agrupa os 'ScoredTile' caso se refiram à mesma 'Zone'
 joinScoredTilesByZone :: [ScoredTile] -> [ScoredTile] -> [[ScoredTile]]
