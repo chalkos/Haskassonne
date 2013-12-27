@@ -7,6 +7,8 @@ import Text.XML.Light.Types
 --import FakePrettyShow
 import FakePrettyShow
 
+import Debug.Trace
+
 -- | Um jogador. O jogador é identificado por um valor inteiro e tem uma pontuação.
 data Player = Player {
     s_player :: Int,
@@ -85,12 +87,25 @@ getAttrValueChar key ((Attr {attrKey=(QName {qName=attrK}), attrVal=attrV}):t) =
                                                                                 else getAttrValueChar key t
 
 -- | Encontra a tag \<board> e processa os seus descendentes.
+-- processaBoard (Element {elName=(QName {qName="board"}), elContent=children} ) = 
 processaBoard :: Element -> Board
-processaBoard (Element {elName=(QName {qName="board"}), elContent=children} ) = 
-    Board { b_terrain = processaTerrain (getElemsFromContent children)
-          , b_scores  = processaScores (getElemsFromContent children)
-          , b_next    = processaNext (getElemsFromContent children)
-          }
+processaBoard e = if(verificaTopElement e "board") then
+                    let children = elContent e
+                    in Board { b_terrain = processaTerrain (getElemsFromContent children)
+                               , b_scores  = processaScores (getElemsFromContent children)
+                               , b_next    = processaNext (getElemsFromContent children) 
+                             }
+                  else 
+                    let children = elContent blank_element
+                    in Board { b_terrain = processaTerrain (getElemsFromContent children)
+                               , b_scores  = processaScores (getElemsFromContent children)
+                               , b_next    = processaNext (getElemsFromContent children) 
+                             }
+
+
+verificaTopElement :: Element -> String -> Bool
+verificaTopElement e s = let boardParentLength = (length (findElements (QName s Nothing Nothing) e))
+                       in if ((boardParentLength) == 1) then True else False
 
 -- | Encontra a tag \<terrain> e processa os seus descendentes.
 processaTerrain :: [Element] -> [Tile]

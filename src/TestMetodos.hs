@@ -1,6 +1,8 @@
 module Main where
 
 import Test.QuickCheck
+import Data.Maybe
+import Text.XML.Light
 
 import Leitor
 import ArtASCII
@@ -67,3 +69,28 @@ dup xs = dup' xs Set.empty
 dupBool :: (Ord a, Show a) => [a] -> Bool
 dupBool x = case dup x of Just x  -> False
                           Nothing -> True
+
+
+students="<Students>"++
+        " <Student Name=\"April\" Gender=\"F\" DateOfBirth=\"1989-01-02\" />"++
+        " <Student Name=\"Bob\" Gender=\"M\"  DateOfBirth=\"1990-03-04\" />"++
+        " <Student Name=\"Chad\" Gender=\"M\"  DateOfBirth=\"1991-05-06\"/>"++
+        " <Student Name=\"Dave\" Gender=\"M\"  DateOfBirth=\"1992-07-08\">"++
+        "   <Pet Type=\"dog\" Name=\"Rover\" />  </Student>"++
+        " <Student DateOfBirth=\"1993-09-10\" Gender=\"F\" Name=\"&#x00C9;mily\" />"++
+        "</Students>"
+ 
+xmlRead elm name  = mapM_ putStrLn 
+      . concatMap (map (fromJust.findAttr (unqual name)).filterElementsName (== unqual elm))
+      . onlyElems.  parseXML
+
+prop_verificaTopElement xs = verificaTopElement xs 
+
+prop_isGameOver xs = not (null xs) ==> isGameOver b
+  where e = Element { elName = unqual "test"
+                          , elAttribs = []
+                          , elContent = []
+                          , elLine = Nothing
+                          }
+        b = processaBoard e
+
