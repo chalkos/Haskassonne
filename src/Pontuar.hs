@@ -75,7 +75,8 @@ getScoredTileFromTile b t = (zone, 0)
 -- | Pontuar uma 'Zone'
 scoreZone :: Zone -> Int
 scoreZone (Cloister _ tiles) = (length tiles)-1
-scoreZone (City _ tiles) = length tiles
+--scoreZone (City _ tiles) = (length tiles)
+scoreZone (City inicial tiles) = (if isCityComplete tiles [inicial] [] then 2 else 1) * (length tiles)
 scoreZone (Field _ tiles) = length tiles
 
 -- | Verifica se o 'Meeple' monk deve ser retirado do tabuleiro
@@ -103,21 +104,11 @@ getRealScoresForZones zones = concat $ zipWith (scoreAZone) groupedZones players
                             playersToBeScored = map (playersToScore) groupedZones -- [[Int]]
                             scoreAZone :: [ScoredTile] -> [Int] -> [ScoredTile]
                             scoreAZone [] _ = []
-                            scoreAZone ((x,_):xs) pls = (x,score):(scoreAZone xs pls)
-                                  where shouldScore = elem ((m_player.fromJust.t_meeple.getFirstTile) x) pls
-                                        score = if shouldScore then scoreZone x else 0
-
--- este não dá pontuação em duplicado mas dá menos 2 respostas certas no mooshak, nao sei porquê
-{-getRealScoresForZones zones = concat $ zipWith (scoreAZone) groupedZones playersToBeScored
-                      where groupedZones = joinScoredTilesByZone zones [] -- [[ScoredTile]]
-                            playersToBeScored = map (playersToScore) groupedZones -- [[Int]]
-                            scoreAZone :: [ScoredTile] -> [Int] -> [ScoredTile]
-                            scoreAZone [] _ = []
                             scoreAZone ((x,_):xs) pls = (x,score):(scoreAZone xs newpls)
                                   where shouldScore = elem ownerOfThisZone pls
                                         score = if shouldScore then scoreZone x else 0
                                         newpls = filter (ownerOfThisZone/=) pls
-                                        ownerOfThisZone = m_player.fromJust.t_meeple.getFirstTile $ x-}
+                                        ownerOfThisZone = m_player.fromJust.t_meeple.getFirstTile $ x
 
 -- | Agrupa os 'ScoredTile' caso se refiram à mesma 'Zone'
 joinScoredTilesByZone :: [ScoredTile] -> [ScoredTile] -> [[ScoredTile]]
