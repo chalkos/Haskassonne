@@ -74,10 +74,19 @@ getScoredTileFromTile b t = (zone, 0)
 
 -- | Pontuar uma 'Zone'
 scoreZone :: Zone -> Int
-scoreZone (Cloister _ tiles) = (length tiles)-1
+scoreZone (Cloister _ tiles) = (length tiles)
 --scoreZone (City _ tiles) = (length tiles)
 scoreZone (City inicial tiles) = (if isCityComplete tiles [inicial] [] then 2 else 1) * (length tiles)
+--scoreZone city@(City inicial tiles) = (if isCityComplete tiles [inicial] []then 2 else 1) * ((length tiles) + nrMeeples)
+--          where nrMeeples = countMeeplesInCity city
 scoreZone (Field _ tiles) = length tiles
+
+-- | Contar o número de meeples numa 'City' do mesmo dono do meeple inicial
+countMeeplesInCity :: Zone -> Int
+countMeeplesInCity (City inicial tiles) = length.(filter (mesmoDono)) $ tiles
+  where mesmoDono tile = dono == getDono tile
+        getDono (Tile _ _ _ _ (Just m)) = m_player m
+        dono = getDono inicial
 
 -- | Verifica se o 'Meeple' monk deve ser retirado do tabuleiro
 isMonkDone :: Board -> Tile -> Bool
