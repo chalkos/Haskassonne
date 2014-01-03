@@ -32,7 +32,7 @@ finalScore :: Board -> Board
 --finalScore b = trace (scoredTiles2String realScores) (Board {b_terrain=tilesWithoutMeeples, b_scores=scoredPlayers, b_next=(Next '-')})
 finalScore b = Board tilesWithoutMeeples scoredPlayers (Next '-')
             where players = b_scores b
-                  realScores = getRealScoresForZones $ map (\x->(getZoneForMeeple b x,0)) (getAllTilesWithMeeples b)
+                  realScores = getRealScoresForZones b $ map (\x->(getZoneForMeeple b x,0)) (getAllTilesWithMeeples b)
                   scoredPlayers = scorePlayers realScores players
                   tilesWithoutMeeples = removeMeeples realScores (b_terrain b)
 -- map (getZoneForMeeple b) (getAllTilesWithMeeples b) -- Obtém 'ScoredTile's que devem ser pontuados
@@ -41,7 +41,7 @@ finalScore b = Board tilesWithoutMeeples scoredPlayers (Next '-')
 updateScore :: Board -> Board
 updateScore b = (Board {b_terrain=tilesWithoutMeeples, b_scores=scoredPlayers, b_next=(b_next b)})
             where players = b_scores b
-                  realScores = getRealScoresForZones $ obterMeeplesPorRetirar b
+                  realScores = getRealScoresForZones b $ obterMeeplesPorRetirar b
                   scoredPlayers = scorePlayers realScores players
                   tilesWithoutMeeples = removeMeeples realScores (b_terrain b)
 
@@ -73,13 +73,33 @@ getScoredTileFromTile b t = (zone, 0)
                       where zone = getZoneForMeeple b t
 
 -- | Pontuar uma 'Zone'
-scoreZone :: Zone -> Int
-scoreZone (Cloister _ tiles) = (length tiles)
---scoreZone (City _ tiles) = (length tiles)
-scoreZone (City inicial tiles) = (if isCityComplete tiles [inicial] [] then 2 else 1) * (length tiles)
---scoreZone city@(City inicial tiles) = (if isCityComplete tiles [inicial] []then 2 else 1) * ((length tiles) + nrMeeples)
---          where nrMeeples = countMeeplesInCity city
-scoreZone (Field _ tiles) = length tiles
+scoreZone :: Zone -> Board -> Int
+scoreZone (Cloister _ tiles) _ = (length tiles)
+scoreZone (City inicial tiles) _ = (if isCityComplete tiles [inicial] [] then 2 else 1) * (length tiles)
+scoreZone field b = scoreField field b
+
+-- | Pontuar um 'Field'
+-- para obter numero de cidades completas alcançáveis:
+
+-- obter todos os tiles de cidade alcancaveis - OK
+-- para cada um deles calcular a zone - OK
+-- remover duplicados - OK
+-- ver quantos desses são cidades completas - OK
+-- multiplicar isso por 3 - OK
+scoreField :: Zone -> Board -> Int
+scoreField (Field inicial tiles) b = (3*) $ length $ filter (completa) $ removeDuplicateCities $ map (getZoneForMeeple b) $ map (colocarMeeple) $ filter (hasCity) tiles
+          where hasCity (Tile 'E' _ _ _ _) = True
+                hasCity (Tile 'N' _ _ _ _) = True
+                hasCity _ = False
+                colocarMeeple (Tile a b c d Nothing) = (Tile a b c d (Just (Meeple (-1) 'K')))
+                colocarMeeple tile = tile
+                completa (City i todos) = isCityComplete (todos) [i] []
+
+-- | Remove cidades duplicadas
+removeDuplicateCities :: [Zone] -> [Zone]
+removeDuplicateCities = foldl (\vistos x -> if x `pertence` vistos then vistos else vistos ++ [x]) []
+                where pertence (City inicial todos) lista = isJust $ find (tilesListsAreTheSame todos) (map getTiles lista)
+                      getTiles (City _ todos) = todos
 
 -- | Contar o número de meeples numa 'City' do mesmo dono do meeple inicial
 countMeeplesInCity :: Zone -> Int
@@ -107,17 +127,17 @@ isKnightDone b tMeeple = (m_type meeple) == 'K' && isCityComplete tiles [tMeeple
 
 -- scoreAZone :: [ScoredTile] -> [Int] -> [ScoredTile]
 -- | Obtém o verdadeiro score associado a uma zona depois de contar o número de 'Meeple's presente nessa zona
-getRealScoresForZones :: [ScoredTile] -> [ScoredTile]
-getRealScoresForZones zones = concat $ zipWith (scoreAZone) groupedZones playersToBeScored
-                      where groupedZones = joinScoredTilesByZone zones [] -- [[ScoredTile]]
-                            playersToBeScored = map (playersToScore) groupedZones -- [[Int]]
-                            scoreAZone :: [ScoredTile] -> [Int] -> [ScoredTile]
-                            scoreAZone [] _ = []
-                            scoreAZone ((x,_):xs) pls = (x,score):(scoreAZone xs newpls)
-                                  where shouldScore = elem ownerOfThisZone pls
-                                        score = if shouldScore then scoreZone x else 0
-                                        newpls = filter (ownerOfThisZone/=) pls
-                                        ownerOfThisZone = m_player.fromJust.t_meeple.getFirstTile $ x
+getRealScoresForZones :: Board -> [ScoredTile] -> [ScoredTile]
+getRealScoresForZones b zones = concat $ zipWith (scoreAZone) groupedZones playersToBeScored
+                        where groupedZones = joinScoredTilesByZone zones [] -- [[ScoredTile]]
+                              playersToBeScored = map (playersToScore) groupedZones -- [[Int]]
+                              scoreAZone :: [ScoredTile] -> [Int] -> [ScoredTile]
+                              scoreAZone [] _ = []
+                              scoreAZone ((x,_):xs) pls = (x,score):(scoreAZone xs newpls)
+                                    where shouldScore = elem ownerOfThisZone pls
+                                          score = if shouldScore then scoreZone x b else 0
+                                          newpls = filter (ownerOfThisZone/=) pls
+                                          ownerOfThisZone = m_player.fromJust.t_meeple.getFirstTile $ x
 
 -- | Agrupa os 'ScoredTile' caso se refiram à mesma 'Zone'
 joinScoredTilesByZone :: [ScoredTile] -> [ScoredTile] -> [[ScoredTile]]
@@ -139,6 +159,9 @@ playersToScore sTiles = map fst $ filter ((maxMeeples==).snd) playersWithMeeples
                     playersWithMeeples = zipWith (\x y -> (x,y)) owners nrMeeples
                     maxMeeples = maximum nrMeeples
 
-
--- para cada meeple calcular quantos pontos vale
--- retirar os meeple que já foram pontuados
+-- | Verifica se duas 'Zone's se referem à mesma região
+isSameZone :: Zone -> Zone -> Bool
+isSameZone (City x xs) (City y ys) = (tilesAreTheSame x y) || (tilesListsAreTheSame (xs) (ys))
+isSameZone (Field x xs) (Field y ys) = (tilesAreTheSame x y) || (tilesListsAreTheSame (xs) (ys))
+isSameZone (Cloister x xs) (Cloister y ys) = (tilesAreTheSame x y) || (tilesListsAreTheSame (xs) (ys))
+isSameZone _ _ = False

@@ -398,13 +398,6 @@ getAllTilesWithMeeples :: Board -> [Tile]
 getAllTilesWithMeeples b = filter (hasMeeple) (b_terrain b)
                         where hasMeeple tile = isJust $ t_meeple tile
 
--- | Verifica se duas 'Zone's se referem à mesma região
-isSameZone :: Zone -> Zone -> Bool
-isSameZone (City x xs) (City y ys) = (tilesAreTheSame x y) || (tilesListsAreTheSame (xs) (ys))
-isSameZone (Field x xs) (Field y ys) = (tilesAreTheSame x y) || (tilesListsAreTheSame (xs) (ys))
-isSameZone (Cloister x xs) (Cloister y ys) = (tilesAreTheSame x y) || (tilesListsAreTheSame (xs) (ys))
-isSameZone _ _ = False
-
 -- | Verifica se duas lista de 'Tile's contêm os mesmos elementos
 tilesListsAreTheSame :: [Tile] -> [Tile] -> Bool
 tilesListsAreTheSame t1s t2s = and (map (belongsTo t2s) t1s) && and (map (belongsTo t1s) t2s)
@@ -428,14 +421,14 @@ getZoneForMeeple b tile =
 -- | Obtém os 'Tile's de uma cidade começando no 'Tile' especificado
 getCityTiles :: Tile -> [Tile] -> [Tile]
 getCityTiles start l = aux l [start] []
-            where aux todos (this:porVer) vistos = (aux todos (porVer ++ filter (\x -> not $ x `elem` verificados) (tilesToAddBasedOnMeepleType 'K' this todos)) (this:vistos))
+            where aux todos (this:porVer) vistos = (aux todos (porVer ++ filter (\x -> not $ tilesExistsInList x verificados) (tilesToAddBasedOnMeepleType 'K' this todos)) (this:vistos))
                       where verificados = this:vistos++porVer
                   aux _ [] vistos = vistos
 
 -- | Obtém os 'Tile's de um campo começando no 'Tile' especificado
 getFieldTiles :: Tile -> [Tile] -> [Tile]
 getFieldTiles start l = aux l [start] []
-            where aux todos (this:porVer) vistos = (aux todos (porVer ++ filter (\x -> not $ x `elem` verificados) (tilesToAddBasedOnMeepleType 'F' this todos)) (this:vistos))
+            where aux todos (this:porVer) vistos = (aux todos (porVer ++ filter (\x -> not $ tilesExistsInList x verificados) (tilesToAddBasedOnMeepleType 'F' this todos)) (this:vistos))
                       where verificados = this:vistos++porVer
                   aux _ [] vistos = vistos
 
@@ -449,3 +442,8 @@ getCloisterTiles start l = start:(map fromJust (filter isJust (map (getTileAtLoc
 -- | Acrescenta o 'Tile' ao 'Board'
 addTileToBoard :: Board -> Tile -> Board
 addTileToBoard b t = Board ( t:(b_terrain b)) (b_scores b) (b_next b)
+
+-- | Verifica se um 'Tile' pertence a uma lista de 'Tile's com base apenas na sua localização
+tilesExistsInList :: Tile -> [Tile] -> Bool
+tilesExistsInList _ [] = False
+tilesExistsInList tile (h:t) = if tilesAreTheSame tile h then True else tilesExistsInList tile t
