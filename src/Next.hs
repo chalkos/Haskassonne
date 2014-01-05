@@ -20,6 +20,7 @@ main = do entrada <- getContents
 
 processa :: Int -> Element -> Element
 processa seed e = board2element newBoard
+--processa seed e = board2element (finalScore b)
       where b = processaBoard e
             newBoard | null.b_terrain $ b = substituteNext b (Next 'E')
                      | isGameOver b = finalScore b

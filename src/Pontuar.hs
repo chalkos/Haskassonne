@@ -91,8 +91,7 @@ scoreField (Field inicial tiles) b = (3*) $ length $ filter (completa) $ removeD
           where hasCity (Tile 'E' _ _ _ _) = True
                 hasCity (Tile 'N' _ _ _ _) = True
                 hasCity _ = False
-                colocarMeeple (Tile a b c d Nothing) = (Tile a b c d (Just (Meeple (-1) 'K')))
-                colocarMeeple tile = tile
+                colocarMeeple (Tile a b c d _) = (Tile a b c d (Just (Meeple (-1) 'K')))
                 completa (City i todos) = isCityComplete (todos) [i] []
 
 -- | Remove cidades duplicadas

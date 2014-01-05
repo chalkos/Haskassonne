@@ -1,0 +1,23 @@
+<!-- pontuar campos -->
+<?xml version="1.0"?> 
+<board>
+   <terrain>
+      <tile type="E" x="0" y="0" orientation="N">
+            <follower player="1" type="F"/>
+      </tile>
+      <tile type="E" x="-1" y="0" orientation="W"/>
+      <tile type="E" x="-2" y="0" orientation="E"/>
+
+      <tile type="E" x="-2" y="1" orientation="E"/>
+      <tile type="E" x="-1" y="1" orientation="W">
+            <follower player="2" type="K"/>
+      </tile>
+  </terrain>
+  <scores>
+      <score player="1" score="0"/>
+      <score player="2" score="0"/>
+      <score player="3" score="0"/>
+      <score player="4" score="0"/>
+  </scores>
+  <next tile="E"/>
+</board>
