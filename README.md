@@ -3,6 +3,10 @@ Haskassonne
 
 Projecto de Laboratórios de Informática I
 
+Autor
+-----
+Bruno Alexandre Alves Ferreira (a61055)
+
 Informação geral
 ----------------
 
@@ -14,9 +18,10 @@ Makefile
 * draw - cria o executável do draw
 * next - cria o executável do next
 * play - cria o executável do play
-* all - cria os três executáveis
+* all - cria os três executáveis, documentação e relatório
 * doc - gera a documentação
 * clean - apaga ficheiros temporários
+* test - corre testes unitários
 
 Jogar
 -----
@@ -24,8 +29,8 @@ Jogar
 É possível jogar executando sucessivamente a script playRound.sh.
 Consultar a própria script para saber como funciona.
 
-Random Info
-----
+Outras coisas
+-------------
 
 #### Evitar erros estranhos
 

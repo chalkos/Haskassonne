@@ -1,8 +1,8 @@
-.PHONY: clean draw next play dir_bin dir_doc dir_report all doc
+.PHONY: clean draw next play dir_bin dir_doc dir_report all doc report
 
 FLAGS ?= -fprof-auto -O -isrc/ -o
 
-all: draw next play
+all: report doc draw next play
 
 dir_bin:
 	@if [ ! -d bin ]; then mkdir bin; fi;
@@ -22,6 +22,16 @@ clean: dir_report dir_doc dir_bin
 	$(RM) roundDepois.draw
 	$(RM) roundNext.xml
 	$(RM) roundPlay.xml
+	$(RM) report/report.aux
+	$(RM) report/report.log
+	$(RM) report/report.toc
+	$(RM) report/report.out
+
+report: report/report.pdf
+
+report/report.pdf: dir_report
+	@echo "  (gerando Relatório)"
+	cd report; pdflatex report.tex; pdflatex report.tex
 
 bin/draw: dir_bin
 	@echo "  (compilando Draw)"

@@ -55,12 +55,8 @@
 \date{\today}
 \author{
   Bruno Alexandre Alves Ferreira\\
-  \texttt{a61055@alunos.uminho.pt}
-  \and
-  Nuno Miguel Oliveira Salvador\\
-  \texttt{a48398@alunos.uminho.pt}
-  \and
-  Grupo 007
+  {\small A61055}\\
+  \texttt{Grupo 007}
 }
 
 \maketitle
@@ -76,7 +72,7 @@
 \newpage
 \section{Resumo}
 
-Neste relatório encontram-se explicitadas de forma detalhada as escolhas do \textit{grupo 007} no que ao projecto da unidade curricular de Laboratórios de Informática I diz respeito. Serão revistas as escolhas em relação aos tipos de dados usados, a forma como se interligam nos vários programas e outras decisões tomadas para resolver o problema que nos foi proposto.
+Neste relatório encontram-se explicitadas de forma detalhada as escolhas do \textit{grupo 007} no que ao projecto da unidade curricular de Laboratórios de Informática I diz respeito. Serão revistas as escolhas em relação aos tipos de dados usados, a forma como se interligam nos vários programas e outras decisões tomadas para resolver o problema que me foi proposto.
 
 \newpage
 \section{Introdução}
@@ -131,9 +127,9 @@ Torna-se assim possível executar os programas \textit{Play} e \textit{Next} rep
 
 \subsection{Principais Tipos de Dados}
 
-Ao longo do relatório faremos várias referências aos tipos de dados usados ou aos elementos que eles representam, assim sendo considerou-se essencial a sua explicação numa fase inicial do relatório.
+Ao longo do relatório serão feitas várias referências aos tipos de dados usados ou aos elementos que eles representam, assim sendo considerou-se essencial a sua explicação numa fase inicial do relatório.
 
-Estes tipos de dados são usados para conseguir uma representação simplificada, em Haskell, da representação fornecida em XML. Existe, no nosso projecto, um módulo responsável por converter um ficheiro XML na representação interna e um segundo módulo que realiza a funcionalidade inversa.
+Estes tipos de dados são usados para conseguir uma representação simplificada, em Haskell, da representação fornecida em XML. Existe, no projecto, um módulo responsável por converter um ficheiro XML na representação interna e um segundo módulo que realiza a funcionalidade inversa.
 
 \subsubsection[Player]{Player (módulo Leitor)}
 
@@ -171,7 +167,7 @@ Um \textit{tile} representa uma peça do terreno.
     \item[t\_type::Char] O tipo da peça (B, C, E ou N).
     \item[t\_x::Int] A posição horizontal da peça.
     \item[t\_y::Int] A posição vertical da peça.
-    \item[t\_orientation::] A orientação da peça (N, S, W ou E).
+    \item[t\_orientation::Char] A orientação da peça (N, S, W ou E).
     \item[t\_meeple::Maybe Meeple] Um \textit{meeple}, caso exista.
 \end{description}
 
@@ -198,7 +194,7 @@ Existe a possibilidade de não existir um \textit{tile} numa posição (x,y), da
 \newpage
 \subsection{Tipos de Dados Auxiliares}
 
-Estes tipos de dados têm um papel menos significativo. No entanto facilitam a execução de alguma tarefas.
+Estes tipos de dados têm um papel menos significativo. No entanto facilitam a execução de algumas tarefas.
 
 \subsubsection[Limits]{Limits (módulo Leitor)}
 
@@ -232,7 +228,7 @@ Representa uma zona do mapa: uma cidade, um campo ou um claustro.
 
 O primeiro \textit{tile} identifica a peça por onde se começou a zona. Os \textit{tiles} seguintes identificam os \textit{tiles} por onde se estende a mesma zona (neste conjunto deve estar incluído o \textit{tile} onde a zona começou).
 
-No caso do claustro considera-se a zona como os 8 \textit{tiles} à volta do claustro e o próprio claustro.
+No caso do claustro considera-se a zona como os 8 \textit{tiles} adjacentes ao claustro e o próprio claustro.
 
 Definem-se da seguinte forma:
 \begin{description}[style=multiline,leftmargin=5cm,font=\bfseries]
@@ -242,15 +238,13 @@ Definem-se da seguinte forma:
 \end{description}
 
 \subsubsection[Side]{Side (módulo Tabuleiro)}
-Representa uma lateral de uma peça.
-
-Isto facilita o reconhecimento de todos os \textit{tiles} de uma zona.
+Representa uma lateral de uma peça. Isto facilita o reconhecimento de todos os \textit{tiles} de uma zona.
 
 Define-se da seguinte forma:
 \begin{description}[style=multiline,leftmargin=3cm,font=\bfseries]
     \item[SideField] Representa uma lateral de campo.
-    \item[SideCity] Representa um campo.
-    \item[SideBoth] Representa um claustro.
+    \item[SideCity] Representa uma lateral de cidade.
+    \item[SideBoth] Representa a ausência de lateral (faz "match" com ambos SideField e SideCity).
 \end{description}
 
 \subsubsection[Sides]{Sides (módulo Tabuleiro)}
@@ -301,7 +295,7 @@ Descreve-se agora o funcionamento geral do programa Draw.\\
   \BlankLine
   importa o XML para um Board\\
   obtém os limites exteriores do Board\\
-  constroi o Map
+  constrói o Map
   \BlankLine
   Matriz de Art$\leftarrow$\ForAll{maybeTiles of Map}{
     \ConvertMaybeTileToArt
@@ -349,7 +343,7 @@ Descreve-se agora o funcionamento geral do programa Play.\\
 \end{algorithm}
 \ \\
 \ \\
-A nossa implementação do programa Play tem uma funcionalidade extra: quando lhe é passado qualquer argumento, imprime um ficheiro de estado XML completo, em vez de apenas a tag com o \emph{Tile} jogado. Esta alteração permite-nos encaminhar o output do programa Play para o programa Next e assim jogar uma "ronda".
+A implementação do programa Play tem uma funcionalidade extra: quando lhe é passado qualquer argumento, imprime um ficheiro de estado XML completo, em vez de apenas a tag com o \emph{Tile} jogado. Esta alteração permite-nos encaminhar o output do programa Play para o programa Next e assim jogar uma "ronda".
 
 
 \newpage
@@ -397,52 +391,57 @@ Descreve-se agora o funcionamento geral do programa Next.\\
 \ \\
 A nossa implementação do programa Next tem uma funcionalidade extra: quando lhe é passado qualquer argumento, imprime um ficheiro de estado XML legível (com várias linhas e tabulações), em vez de um XML \emph{"one-liner"}. Esta alteração permite-nos ler e interpretar manualmente o ficheiro XML de forma mais rápida.
 
-Colocar um '-' no \emph{Next} do \emph{Board} faz com que o módulo \emph{Escrever} o ignore, resultando num formato XML sem a tag next.
+Colocar um '-' no \emph{Next} do \emph{Board} faz com que o módulo \emph{Escrever} o ignore, resultando num \emph{XML} sem a tag next.
 
 \newpage
 \subsection[Zones]{\emph{Zones}}
-Quando precisamos de calcular uma \emph{Zone} (cidade ou campo) fazemos uma pesquisa breadth-first que começa no \emph{Tile} que tem o \emph{meeple} e percorre todos os \emph{tiles} adjacentes que tenham laterais concordantes.
+Quando existe a necessidade de construir uma \emph{Zone} (cidade ou campo) usa-se uma travessia breadth-first que começa no \emph{Tile} que tem o \emph{meeple} e percorre todos os \emph{tiles} adjacentes que tenham laterais concordantes.
 
-A \emph{Zone} de um claustro são os 8 tiles adjacentes ao claustro e o próprio claustro.
+A \emph{Zone} de um claustro são os 8 \emph{tiles} adjacentes ao claustro e o próprio claustro.
 
 Este tipo de dados e forma de resolver o problema permitem-nos depois dar diversos usos à \emph{Zone}:
 
 \begin{itemize}
-  \item Contar o número de \emph{tiles} numa zona consiste em contar o número de elementos na lista de \emph{tiles}. No caso do claustro, deve-se subtrair um ao número de elementos nessa lista.
-  \item Todas as zonas com os mesmos elementos na lista de \emph{tiles} são dominadas por mais que um meeple. Isto permite-nos saber quantos \emph{meeples} de cada jogador dominam uma zona e atribuir correctamente os pontos.
-  \item Remover o \emph{meeple} que domina uma zona consiste em obter a localização do tile inicial da \emph{Zone}, pesquisar o \emph{tile} com essa localização no Board, remover o \emph{meeple} e adicionar uma unidade ao número de \emph{meeples} disponíveis desse jogador.
+  \item Contar o número de \emph{tiles} numa zona consiste em contar o número de elementos na lista de \emph{tiles}.
+  \item Todas as zonas com os mesmos elementos na lista de \emph{tiles} e \emph{tiles} iniciais diferentes são dominadas por mais que um meeple. Isto permite-nos saber quantos \emph{meeples} de cada jogador dominam uma zona e atribuir correctamente os pontos.
+  \item Pontuar um campo consiste em obter a \emph{Zone} para esse campo, reunir todas as peças do tipo E e N alcançáveis, obter as \emph{Zones} relativas a essas peças (e assim obter as várias cidades), remover as \emph{Zones} iguais, verificar quais dessas \emph{Zones} representam cidades completas, contar quantas cidades foram obtidas e atribuir 3 pontos por cada uma.
+  \item Para pontuar um claustro basta contar o numero \emph{tiles} na respectiva \emph{Zone}.
+  \item Para pontuar uma cidade basta obter a \emph{Zone} para essa cidade e verificar se está completa.
 \end{itemize}
 
-O algoritmo que verifica se uma cidade já está completa (no programa Next) é bastante semelhante, utilizando uma pesquisa breadth-first que percorre apenas os \emph{tiles} de cidade e termina caso a cidade não esteja completa ou quando não houver mais \emph{tiles} na orla (que significa que a cidade está completa).
+O algoritmo que verifica se uma cidade já está completa (no programa Next) é bastante semelhante, fazendo uma travessia breadth-first que percorre apenas os \emph{tiles} de cidade e termina caso a cidade não esteja completa ou quando não houver mais \emph{tiles} na orla (que significa que a cidade está completa).
 
 \newpage
 \section{Makefile}
 A \emph{Makefile} contém várias regras principais:
 
 \begin{description}[style=multiline,leftmargin=2cm,font=\bfseries]
-    \item[all] Compila os três programas.
+    \item[all] Compila os três programas, gera a documentação e este relatório.
     \item[clean] Apaga ficheiros binários e temporários.
     \item[draw] Compila o programa Draw.
     \item[play] Compila o programa Play.
     \item[next] Compila o programa Next.
     \item[doc] Gera a documentação para as classes do projecto.
+    \item[report] Gera este relatório.
+    \item[test] Testa os vários programas.
 \end{description}
+
 
 \newpage
 \section{Testes}
 
-\subsection{Ficheiro TestDraw.hs}
-Foi feita uma tentativa de utilizar o QuickCheck no nosso projecto. Não nos ocorreram formas intuitivas de testar funcionamento complicado usando a geração de dados aleatórios, por isso os nossos testes usando QuickCheck resumem-se a testar se a rotação de Art e a remoção de duplicados em listas funciona.
+\subsection[Ficheiro TestDraw.hs (removido)]{Ficheiro TestDraw.hs}
+Foi feita uma tentativa de utilizar o QuickCheck no projecto. Os testes usando QuickCheck resumem-se a testar se a rotação de Art e a remoção de duplicados em listas funciona. Devido à fraca utilidade destes testes, este ficheiro foi mais tarde retirado do projecto.
 
-Por outro lado a nossa script de jogar uma ronda providenciou-nos todo o tipo de situações para testar o nosso projecto.
+Por outro lado a script de jogar uma ronda providenciou-nos todo o tipo de situações para testar o nosso projecto.
 
 \subsection{Ficheiros XML de teste}
-Foram criados vários ficheiros XML para testes na directoria test. Estes servem para testar algumas funcionalidades básicas do programa, sendo que as mais avançadas foram testadas usando a script de jogar uma ronda.
+Foram criados vários ficheiros XML para testes unitários na directoria test. Estes servem para testar algumas funcionalidades básicas do programa, sendo que as mais avançadas foram testadas usando a script de jogar uma ronda e observando os resultados dos programas, ronda após ronda.
 
 \subsection{Script: Jogar uma ronda}
 Foi criada uma script que "joga uma ronda". Caso não exista nenhum XML de estado, esta script começa por usar o ficheiro de testes com um tabuleiro vazio.
 
-A script executa em sequência os programas Play e Next, executando antes e depois o programa Draw. Utilizando as funcionalidades extra que foram adicionadas aos programas Play e Next (que são activadas quando se fornece um argumento a estes programas) e gravando os vários XML que são produzidos pelos programas, conseguimos ter todo o tipo de testes e situações para por a nossa solução à prova.
+A script executa em sequência os programas Play e Next, executando antes e depois o programa Draw. Utilizando as funcionalidades extra que foram adicionadas aos programas Play e Next (que são activadas quando se lhes fornece um argumento) e gravando os vários XML que são produzidos, consegue-se ter todo o tipo de testes e situações para por os programas à prova.
 
 Antes de terminar, a script coloca lado a lado o output do programa Draw antes e depois de jogar a ronda. Assim consegue-se ter uma perspectiva geral rápida sobre a evolução do jogo.
 
@@ -450,35 +449,18 @@ O verdadeiro potencial desta script é realizado quando ela é executada várias
 
 \newpage
 \section{Elementos do Grupo}
+Existiam dois elementos neste grupo no início do projecto, mas um deles não contribuiu de forma significativa para o projecto e, como tal, não é referido neste relatório. A contribuição desse elemento para este projecto resume-se a um teste \textit{quickcheck} que verifica se a função \textit{removeDuplicates} remove, efectivamente, os elementos duplicados de uma lista e a um segundo teste que verifica se a rotação de um \textit{Tile}, no programa \textit{draw}, é realizada correctamente. Ambos os testes foram criados numa fase em que não contribuíam significativamente para o projecto (ambas as funções tinham já sido verificadas de outras formas e não aparentavam ter qualquer erro).
+
+Inicialmente o relatório foi elaborado tendo em conta um grupo de dois elementos, tendo sido revisto antes da entrega do projecto para contemplar apenas um autor. Esta alteração foi sendo atrasada na esperança que o segundo membro do grupo fizesse alguma contribuição significativa para o projecto. Como tal contribuição não aconteceu até à véspera da entrega do projecto, o grupo 007 ficou reduzido a apenas um elemento.
 
 \begin{figure}[h!]
 \centering
 \begin{subfigure}{.5\textwidth}
   \centering
-  \includegraphics[width=0.8\linewidth]{brunoferreira}
+  \includegraphics[width=0.6\linewidth]{brunoferreira}
   \caption{Bruno Ferreira (a61055)}
 \end{subfigure}%
-\begin{subfigure}{.5\textwidth}
-  \centering
-  \includegraphics[width=0.8\linewidth]{nunosalvador}
-  \caption{Nuno Salvador (a48398)}
-\end{subfigure}%
 \end{figure}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
