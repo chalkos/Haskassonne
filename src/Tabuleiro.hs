@@ -6,10 +6,6 @@ import Data.List
 import Data.Maybe
 import Data.Char
 
-
-import FakePrettyShow
---import FakePrettyShow
-
 import Debug.Trace
 
 -- | Representa uma zona do mapa: uma cidade, um campo ou um claustro, começando num determinado 'Tile'.
@@ -161,7 +157,8 @@ possibleTilesAt tiles (x,y) =
 
 -- | A partir do 'Board' descobre todas as peças que podem ser colocadas, onde e em que posição (isto ignorando meeples e tendo em conta o número máximo de peças jogáveis de um determinado tipo)
 possibleNextTiles :: Board -> [Tile]
-possibleNextTiles b = trace ("PecasRestantes(B,C,E,N): " ++ show (pecasRestantes b)) filter (aindaPodemSerColocadasPecasDesteTipo.t_type) todos
+-- possibleNextTiles b = trace ("PecasRestantes(B,C,E,N): " ++ show (pecasRestantes b)) filter (aindaPodemSerColocadasPecasDesteTipo.t_type) todos
+possibleNextTiles b = filter (aindaPodemSerColocadasPecasDesteTipo.t_type) todos
   where limits = (getLimits b)
         tiles = b_terrain b
         (xmin,xmax,ymin,ymax) = ((l_Xmin limits)-1, (l_Xmax limits)+1, (l_Ymin limits)-1, (l_Ymax limits)+1)
@@ -223,7 +220,7 @@ generateNext seed board = Next (t_type (todos !! (randomValue seed ((length todo
                                 
 -- | Fornecendo uma seed entre 0 e 1000, produz um número entre 0 e o segundo argumento.
 randomValue :: Int -> Int -> Int
-randomValue seed maximo = trace ("maxRandom: " ++ show maximo) (seed `mod` (maximo+1))
+randomValue seed maximo = seed `mod` (maximo+1)
 
 -- | A partir do tabuleiro e da lista de 'Tile's que podem ser colocados, devolver uma lista de 'Tile's com 'Meeples's que podem ser colocados.
 getTilesWithMeeples :: Board -> [Tile] -> [Tile]
@@ -355,7 +352,7 @@ randomValidTileToPlay seed board = res
 
 -- | Obter os tiles que estão na zona mais interior do tabuleiro
 tilesMaisInteriores :: [Tile] -> [Tile]
-tilesMaisInteriores tiles = filter (\t -> menorDistancia>=(distancia t)) tiles
+tilesMaisInteriores tiles = filter (\t -> menorDistancia+1>=(distancia t)) tiles
       where distancia (Tile _ x y _ _) = sqrt $ (((fromIntegral x)**2) + ((fromIntegral y)**2))
             menorDistancia = minimum $ map (distancia) tiles
 
@@ -385,7 +382,8 @@ listOfTypesFromTuple (b,c,e,n) = lb ++ lc ++ le ++ ln
 
 -- | Verifica se o jogo terminou
 isGameOver :: Board -> Bool
-isGameOver b = trace ("Nr restantes possiveis: " ++ (show.length) (possibleNextTiles b)) $ (null.possibleNextTiles) b
+-- isGameOver b = trace ("Nr restantes possiveis: " ++ (show.length) (possibleNextTiles b)) $ (null.possibleNextTiles) b
+isGameOver b = null.possibleNextTiles $ b
 
 -- | Substitui a componente 'Next' de um 'Board'
 substituteNext :: Board -> Next -> Board

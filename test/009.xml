@@ -1,0 +1,61 @@
+<board>
+  <terrain>
+    <tile type="E" x="-3" y="-1" orientation="S" />
+    <tile type="E" x="1" y="-3" orientation="E" />
+    <tile type="E" x="3" y="1" orientation="E">
+      <follower player="2" type="K" />
+    </tile>
+    <tile type="E" x="-1" y="3" orientation="W">
+      <follower player="1" type="K" />
+    </tile>
+    <tile type="E" x="1" y="3" orientation="W" />
+    <tile type="E" x="-3" y="1" orientation="S">
+      <follower player="1" type="F" />
+    </tile>
+    <tile type="E" x="3" y="-1" orientation="W" />
+    <tile type="E" x="-3" y="0" orientation="N" />
+    <tile type="E" x="0" y="-3" orientation="W">
+      <follower player="2" type="K" />
+    </tile>
+    <tile type="E" x="3" y="0" orientation="E" />
+    <tile type="E" x="0" y="3" orientation="E" />
+    <tile type="E" x="2" y="-2" orientation="N" />
+    <tile type="N" x="-2" y="2" orientation="E" />
+    <tile type="N" x="-2" y="-2" orientation="S" />
+    <tile type="E" x="2" y="2" orientation="N">
+      <follower player="2" type="K" />
+    </tile>
+    <tile type="N" x="-1" y="-2" orientation="W">
+      <follower player="1" type="K" />
+    </tile>
+    <tile type="C" x="2" y="-1" orientation="E" />
+    <tile type="N" x="-2" y="1" orientation="S" />
+    <tile type="E" x="-1" y="2" orientation="W">
+      <follower player="2" type="K" />
+    </tile>
+    <tile type="N" x="2" y="0" orientation="W" />
+    <tile type="E" x="0" y="2" orientation="S" />
+    <tile type="B" x="-2" y="-1" orientation="W" />
+    <tile type="B" x="2" y="1" orientation="N" />
+    <tile type="N" x="-2" y="0" orientation="E" />
+    <tile type="B" x="1" y="-2" orientation="W" />
+    <tile type="N" x="1" y="-1" orientation="E">
+      <follower player="1" type="F" />
+    </tile>
+    <tile type="N" x="-1" y="1" orientation="W" />
+    <tile type="B" x="1" y="2" orientation="N" />
+    <tile type="E" x="-1" y="-1" orientation="N" />
+    <tile type="B" x="0" y="-2" orientation="N" />
+    <tile type="E" x="1" y="1" orientation="W" />
+    <tile type="N" x="1" y="0" orientation="S" />
+    <tile type="B" x="0" y="-1" orientation="E" />
+    <tile type="C" x="-1" y="0" orientation="E" />
+    <tile type="N" x="0" y="1" orientation="E" />
+    <tile type="E" x="0" y="0" orientation="W" />
+  </terrain>
+  <scores>
+    <score player="1" score="24" />
+    <score player="2" score="19" />
+  </scores>
+  <next tile="E" />
+</board>

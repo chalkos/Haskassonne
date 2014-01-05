@@ -3,7 +3,6 @@ module ArtASCII where
 
 import Leitor
 import Tabuleiro
-import Debug.Trace
 
 -- | Representa um tile em ArtASCII
 type Art = [String]

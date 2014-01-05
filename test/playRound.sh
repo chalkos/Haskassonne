@@ -2,7 +2,7 @@
 
 # se nao existir primeiro ficheiro, arranjar um
 if [[ ! -e "roundNext.xml" ]]; then
-	cp test/005.xml roundNext.xml
+	cp test/003.xml roundNext.xml
 fi
 
 echo "--draw--"

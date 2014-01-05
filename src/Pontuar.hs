@@ -7,8 +7,6 @@ import Leitor
 import Data.Maybe
 import Data.List
 
-import Debug.Trace
-
 -- | Representa uma 'Zone' e a sua pontuação
 type ScoredTile = (Zone, Int)
 

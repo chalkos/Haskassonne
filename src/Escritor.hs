@@ -5,8 +5,6 @@ import Leitor
 import Data.Char
 import Text.XML.Light
 import Text.XML.Light.Types
---import FakePrettyShow
-import FakePrettyShow
 import Data.Maybe
 
 -- | Converte um objecto 'Tile' no seu equivalente em XML

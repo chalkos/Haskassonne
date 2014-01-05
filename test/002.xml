@@ -20,5 +20,5 @@
 		<score player="4" score="0"/>
 		<score player="5" score="0"/>
 	</scores>
-	<next player="5" tile="E"/>
+	<next tile="E"/>
 </board>

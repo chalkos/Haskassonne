@@ -7,20 +7,16 @@ import Leitor
 import Pontuar
 import Escritor
 import System.Environment
--- import FakePrettyShow
-import FakePrettyShow
-
-import Debug.Trace
 
 main = do entrada <- getContents
           let Just elem = parseXMLDoc entrada
           seed <- randomRIO (0,1000)
           args <- getArgs
-          putStrLn $ (if not $ null args then showElement else ppElement) (processa seed elem)
+          putStrLn $ (if null args then showElement else ppElement) (processa seed elem)
 
 processa :: Int -> Element -> Element
 processa seed e = board2element newBoard
---processa seed e = board2element (finalScore b)
+-- processa seed e = board2element (finalScore b)
       where b = processaBoard e
             newBoard | null.b_terrain $ b = substituteNext b (Next 'E')
                      | isGameOver b = finalScore b

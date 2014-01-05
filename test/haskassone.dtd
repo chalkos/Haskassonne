@@ -1,0 +1,24 @@
+<!ELEMENT board (terrain, scores, next?)>
+
+<!ELEMENT terrain (tile*)>
+
+<!ELEMENT tile (follower?)>
+<!ATTLIST tile type        (B|C|E|N) #REQUIRED
+               x           CDATA     #REQUIRED
+               y           CDATA     #REQUIRED
+               orientation (N|S|E|W) #REQUIRED>
+
+<!ELEMENT follower EMPTY>
+<!ATTLIST follower player CDATA #REQUIRED
+                   type   (M|K|F) #REQUIRED>
+
+<!ELEMENT scores (score+)>
+
+<!ELEMENT score EMPTY>
+<!ATTLIST score player CDATA #REQUIRED
+                score  CDATA #REQUIRED>
+
+<!ELEMENT next EMPTY>
+<!ATTLIST next tile (B|C|E|N) #REQUIRED>
+
+

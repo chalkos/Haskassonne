@@ -4,14 +4,9 @@ import Text.XML.Light
 import System.Random
 import Leitor
 import Tabuleiro
-import FakePrettyShow
 import Escritor
 import System.Environment
--- import Debug.Trace
 
---main = do entrada <- getContents
---    let Just elem = parseXMLDoc entrada
---    putStrLn $ showElement (processa elem)
 main = do entrada <- getContents
           args <- getArgs
           let Just elem = parseXMLDoc entrada
